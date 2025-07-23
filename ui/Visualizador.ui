@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Visualizador</class>
+ <widget class="QDialog" name="Visualizador">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>832</width>
+    <height>703</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+	font-family: Roboto;
+	font-size: 10pt;
+}
+.QFrame{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+.QPushButton{
+	color: #FAFAFA;
+	background-color: #2CC985;
+	border: 0px;
+	border-radius: 6px;
+}
+QPushButton:disabled {
+    background-color: #bdc3c7;
+    color: #7f8c8d;
+}
+.QPushButton:hover{
+	background-color: #0C955A;
+}
+.QPushButton:pressed{
+	background-color: #2CC985;
+}
+.QToolButton{
+	color: #FAFAFA;
+	background-color: #2CC985;
+	border: 0px;
+	border-radius: 6px;
+}
+.QToolButton:hover{
+	background-color: #0C955A;
+}
+.QToolButton:pressed{
+	background-color: #2CC985;
+}
+.QLineEdit{
+	border: 1px solid #A6A6A6;
+	border-radius: 4px;
+}
+.QComboBox{
+	border: 1px solid #A6A6A6;
+	border-radius: 4px
+}
+.QComboBox::drop-down:button{
+	border: none;
+}
+.QComboBox::down-arrow{
+	image: url(&quot;asset/arrow.png&quot;);
+	width: 8px;
+	height: 8px;
+}
+.QProgressBar {
+    border: 1px solid rgba(0,0,0,0.5);
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    text-align: center;
+    color: #000;
+    font-weight: bold;
+}
+.QProgressBar::chunk {
+    background-color: #4CAF50;
+    border-radius: 8px;
+}
+
+/* Configuración del área de deslizamiento */
+.QScrollArea{
+	border: 0px;
+	background-color: none;
+}
+
+/* Configuración de las barras de deslizamiento */
+.QScrollBar:vertical{
+    background-color: none;
+    width: 15px;
+    margin: 15px 3px 15px 3px;
+    border: 0px;
+    border-radius: 4px;
+}
+.QScrollBar::handle:vertical{
+    background-color: #8C8C8C;
+    min-height: 5px;
+    border-radius: 4px;
+}
+.QScrollBar::sub-line:vertical{
+    margin: 3px 0px 3px 0px;
+    border-image: url(:/qss_icons/rc/up_arrow_disabled.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+.QScrollBar::sub-line:vertical:hover{
+    border-image: url(:/qss_icons/rc/up_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+.QScrollBar::sub-line:vertical:on{
+    border-image: url(:/qss_icons/rc/up_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+.QScrollBar::add-line:vertical{
+    margin: 3px 0px 3px 0px;
+    border-image: url(:/qss_icons/rc/down_arrow_disabled.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+.QScrollBar::add-line:vertical:hover{
+    border-image: url(:/qss_icons/rc/down_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+.QScrollBar::add-line:vertical:on{
+    border-image: url(:/qss_icons/rc/down_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+.QScrollBar::up-arrow:vertical{
+    background: none;
+}
+.QScrollBar::down-arrow:vertical{
+    background: none;
+}
+.QScrollBar::add-page:vertical{
+    background: none;
+}
+.QScrollBar::sub-page:vertical{
+    background: none;
+}
+
+.QScrollBar:horizontal{
+    background-color: none;
+    height: 15px;
+    margin: 3px 15px 3px 15px;
+    border: 0px;
+    border-radius: 4px;
+}
+.QScrollBar::handle:horizontal{
+    background-color: #8C8C8C;
+    min-width: 5px;
+    border-radius: 4px;
+}
+.QScrollBar::sub-line:horizontal{
+    margin: 0px 3px 0px 3px;
+    border-image: url(:/qss_icons/rc/left_arrow_disabled.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+.QScrollBar::sub-line:horizontal:hover{
+    border-image: url(:/qss_icons/rc/left_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+.QScrollBar::sub-line:horizontal:on{
+    border-image: url(:/qss_icons/rc/left_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+.QScrollBar::add-line:horizontal{
+    margin: 0px 3px 0px 3px;
+    border-image: url(:/qss_icons/rc/right_arrow_disabled.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+.QScrollBar::add-line:horizontal:hover{
+    border-image: url(:/qss_icons/rc/right_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+.QScrollBar::add-line:horizontal:on{
+    border-image: url(:/qss_icons/rc/right_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+.QScrollBar::up-arrow:horizontal{
+    background: none;
+}
+.QScrollBar::down-arrow:horizontal{
+    background: none;
+}
+.QScrollBar::add-page:horizontal{
+    background: none;
+}
+.QScrollBar::sub-page:horizontal{
+    background: none;
+}
+
+
+
+/* Configuración del explorador del proyecto*/
+#title_explorer{
+	font-weight: bold;
+}
+
+
+/* Configuración de los menús de diseño */
+#files{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+#run{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+#parameters{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+#holes_designer{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+#charge_designer{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+#init_designer{
+	background-color: #DBDBDB;
+	border: 1px solid #A6A6A6;
+	border-radius: 8px;
+}
+
+/* Configuración de las pestañas de visualización */
+#viewer_2D{
+	background-color: white;
+}
+#viewer_3D{
+	background-color: white;
+}
+#viewer_eval{
+	background-color: white;
+}</string>
+  </property>
+  <widget class="QFrame" name="frame_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>811</width>
+     <height>681</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QWidget" name="gridLayoutWidget_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>791</width>
+      <height>661</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <item row="4" column="0" colspan="8" alignment="Qt::AlignHCenter">
+      <widget class="QPushButton" name="save_fold">
+       <property name="text">
+        <string>Guardar</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0" colspan="8" alignment="Qt::AlignHCenter">
+      <widget class="QLabel" name="titulografica">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Gráfica&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="8">
+      <widget class="QTabWidget" name="tabs">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="graph2d">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <attribute name="title">
+         <string>2D</string>
+        </attribute>
+        <widget class="QWidget" name="gridLayoutWidget_2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>0</y>
+           <width>761</width>
+           <height>521</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_7">
+          <item row="2" column="0" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="gif">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Animacion de extracciones</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetMinimumSize</enum>
+            </property>
+            <property name="verticalSpacing">
+             <number>0</number>
+            </property>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="extrbox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" alignment="Qt::AlignRight">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Periodo</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" rowspan="2" colspan="3">
+             <widget class="QSlider" name="corte">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="singleStep">
+               <number>2</number>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QLabel" name="mincut">
+              <property name="text">
+               <string>Mínimo</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="2" alignment="Qt::AlignHCenter">
+             <widget class="QLineEdit" name="update_axe">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>50</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" colspan="3" alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="coord">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>59</width>
+                <height>13</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Coordenada</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2" alignment="Qt::AlignRight">
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Categoria a visualizar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="3" alignment="Qt::AlignRight">
+             <widget class="QLabel" name="maxcut">
+              <property name="text">
+               <string>Máximo</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="2">
+             <widget class="QPushButton" name="grapher">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Visualizar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="4">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="0">
+             <widget class="QCheckBox" name="graphx">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Eje X</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QCheckBox" name="graphy">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Eje Y</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QCheckBox" name="graphz">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Eje Z</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QPushButton" name="save_graph_axe">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Guardar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QComboBox" name="cat2dbox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>200</width>
+                <height>0</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="graphlayout"/>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="graph3d">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <attribute name="title">
+         <string>3D</string>
+        </attribute>
+        <widget class="QWidget" name="gridLayoutWidget">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>781</width>
+           <height>501</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="1" alignment="Qt::AlignLeft">
+           <widget class="QComboBox" name="cat3dbox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>100</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" alignment="Qt::AlignRight">
+           <widget class="QLabel" name="label_4">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>Categoria a visualizar</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="graphlayout3d"/>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0" colspan="2" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="grapher3d">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Visualizar</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Seleccionar simulación</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Ruta</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QComboBox" name="folders"/>
+     </item>
+     <item row="2" column="5">
+      <widget class="QToolButton" name="browse">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="4">
+      <widget class="QLineEdit" name="show_ruta"/>
+     </item>
+     <item row="3" column="4" colspan="4">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>450</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
