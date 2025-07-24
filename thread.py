@@ -15,9 +15,11 @@ class SimulationThread(QThread):
     simulation_stop = pyqtSignal(bool)
 
     def __init__(self, n, mvc, rangext, period, bmfile, dpfile, stress_activate, folder, ruta, dcell, savelist): # Entradas
-
+        
         """ Constructor """
+
         super().__init__()
+        
         self.n = n
         self.mvc = mvc
         self.range = rangext
@@ -33,6 +35,7 @@ class SimulationThread(QThread):
 
     def run(self):
         """ Ejecucion de la simulacion """
+        
         try:
             # Ejecutar la simulación
 
@@ -58,7 +61,7 @@ class SimulationThread(QThread):
             traceback.print_exc()
             
     def check_stop_sim(self):
-        """Revisa la bandera de detención cada vez que se actualiza el progreso"""
+        """ Revisa la bandera de detención cada vez que se actualiza el progreso """
 
         if self.stop_sim:
             self.simulation_stop.emit(True)
@@ -66,6 +69,6 @@ class SimulationThread(QThread):
         return False
 
     def stop(self):
-        """Método para detener la simulación desde fuera del hilo"""
+        """ Método para detener la simulación desde fuera del hilo """
         
         self.stop_sim = True

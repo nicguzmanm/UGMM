@@ -15,6 +15,7 @@ from gif import GifDialog
 from viewer import Visualizador
 from config import Configuration
 from save import SaveDialog
+from importer import Importbm
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
@@ -24,6 +25,7 @@ import subprocess
 import shutil
 from PIL import Image
 
+#. , ; tabulacion
 class MainWindow(QtWidgets.QMainWindow):
     """ Aplicacion principal a ejecutar """
     
@@ -41,14 +43,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_val()
         self.bmName.setReadOnly(True)
         self.dpName.setReadOnly(True)
+        self.extName.setReadOnly(True)
 
         # Importar BM
-        self.bmImportButton.clicked.connect(self.importbm)
-        self.bmMenubar.triggered.connect(self.importbm)
+        self.bmImportButton.clicked.connect(self.verifiedbm)
+        self.bmMenubar.triggered.connect(self.verifiedbm)
 
         # Importar DP
         self.dpImportButton.clicked.connect(self.importdp)
         self.dpMenubar.triggered.connect(self.importdp)
+
+        # Importar Plan de extracción (ext)
+        self.extImportButton.clicked.connect(self.importext)
+        self.extMenubar.triggered.connect(self.importdp)
 
         # Ver la carpeta de resultados
         self.fold = 'report' # Ruta donde se iran las carpetas de la simulacion
@@ -167,8 +174,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.bmfile = None
         self.dpfile = None
+        self.extfile = None
         self.bmpreceed = None
         self.dppreceed = None
+        self.extpreceed = None
         self.stress = None
         self.fine_metal = None
         self.period = None
@@ -198,82 +207,46 @@ class MainWindow(QtWidgets.QMainWindow):
         """
 
         int_valide_N_MVC = QtGui.QIntValidator(0, 99)
-        int_valide_PERIOD = QtGui.QIntValidator(0, 99999)
         self.inputN.setValidator(int_valide_N_MVC)
         self.inputMVC.setValidator(int_valide_N_MVC)
-        self.update_axex.setValidator(int_valide_PERIOD)
-        self.update_axey.setValidator(int_valide_PERIOD)
-        self.update_axez.setValidator(int_valide_PERIOD)
     
-    def importbm(self):
-        self.bmfile, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Seleccionar archivo de modelo de bloque', '', 'CSV Files (*.csv);; Excel Files (*.xlsx);;Text Files (*.txt);; All files (*)'
-        )
-        if self.bmfile:
+    def verifiedbm(self):
+
+        win = Importbm(self)
+        win.imported.connect(self.namefile)
+        win.exec()
+        
+            # try:
+            #     # Calculo de tamaño del bloque
+
+            #     x_value = np.unique(pd.to_numeric(bm.iloc[:, 0], errors="coerce").dropna().astype(float).tolist())
+            #     y_value = np.unique(pd.to_numeric(bm.iloc[:, 1], errors="coerce").dropna().astype(float).tolist())
+            #     z_value = np.unique(pd.to_numeric(bm.iloc[:, 2], errors="coerce").dropna().astype(float).tolist())
+               
+            #     x_value = np.sort(np.unique(np.array(x_value)))
+            #     y_value = np.sort(np.unique(np.array(y_value)))
+            #     z_value = np.sort(np.unique(np.array(z_value)))
+
+            #     x_value = np.unique(np.diff(x_value))
+            #     y_value = np.unique(np.diff(y_value))
+            #     z_value = np.unique(np.diff(z_value))
+                
+            #     self.coordstepx = int([x for x in x_value if x > 0][0]) # self.coordstepx = 2
+            #     self.coordstepy = int([y for y in y_value if y > 0][0]) # self.coordstepy = 2
+            #     self.coordstepz = int([z for z in z_value if z > 0][0]) # self.coordstepz = 2
+            # except:
+            #     QtWidgets.QMessageBox.warning(
+            #         self, 'Error', 'Formato inconsistente para un modelo de bloques.'
+            #     )
+            #     return
+    def namefile(self,ruta):
+        " Devolver la ruta de la pestaña emergente "
+
+        if ruta is not None:
+            self.bmfile = ruta
             self.bmName.setText(f'{os.path.basename(self.bmfile)}')
             self.bmpreceed = self.bmfile
-
-            # Capacidad de procesar archivos csv, txt o xlsx
-            file_extension = os.path.splitext(self.bmfile)[1].lower()
-
-            if file_extension == '.csv' or file_extension == '.txt':
-                try:
-                    # Primero intenta con comas (para archivos CSV bien formateados)
-                    bm = pd.read_csv(self.bmfile, delimiter=',', skiprows=1, header=0)
-                    
-                    # Si solo tiene una columna, significa que está separado por espacios
-                    if bm.shape[1] == 1:
-                        raise ValueError("Archivo no separado por comas")  # Fuerza la excepción
-                    
-                except:
-                    bm = pd.read_csv(self.bmfile, sep=r'\s+', skiprows=1, header=0)
-
-            elif file_extension == '.xlsx':
-                bm = pd.read_excel(self.bmfile, header=0, skiprows=1)
-
-            # Funcion que leera el modelo de bloques y creara una list tipo np con las diferencias
-            # entre las coordenadas y luego veera sus valor unicos ordenados de menor a mayor
-            # se eliminaran los negativos y 0 dejando las diferencias positivas y se eligira el 
-            # primer valor positivo ya que este sera el multiplo de todas las coordenadas
-
-            try:
-                # Calculo de tamaño del bloque
-
-                x_value = np.unique(pd.to_numeric(bm.iloc[:, 0], errors="coerce").dropna().astype(float).tolist())
-                y_value = np.unique(pd.to_numeric(bm.iloc[:, 1], errors="coerce").dropna().astype(float).tolist())
-                z_value = np.unique(pd.to_numeric(bm.iloc[:, 2], errors="coerce").dropna().astype(float).tolist())
-               
-                x_value = np.sort(np.unique(np.array(x_value)))
-                y_value = np.sort(np.unique(np.array(y_value)))
-                z_value = np.sort(np.unique(np.array(z_value)))
-
-                x_value = np.unique(np.diff(x_value))
-                y_value = np.unique(np.diff(y_value))
-                z_value = np.unique(np.diff(z_value))
-                
-                self.coordstepx = int([x for x in x_value if x > 0][0]) # self.coordstepx = 2
-                self.coordstepy = int([y for y in y_value if y > 0][0]) # self.coordstepy = 2
-                self.coordstepz = int([z for z in z_value if z > 0][0]) # self.coordstepz = 2
-
-                # Informar en una tabla sobre el tamaño de bloque detectado por la funcion anterior
-                
-                
-                #self.table_dcell.setItem(0,0,QtWidgets.QTableWidgetItem(str(self.coordstepx)))
-                #self.table_dcell.setItem(1,0,QtWidgets.QTableWidgetItem(str(self.coordstepy)))
-                #self.table_dcell.setItem(2,0,QtWidgets.QTableWidgetItem(str(self.coordstepz)))
-            except:
-                QtWidgets.QMessageBox.warning(
-                    self, 'Error', 'Formato inconsistente para un modelo de bloques.'
-                )
-                return
-                
-    # def show_table_dcell(self):
-    #     """ Definimos la tabla donde se mostrara el tamaño de los bloques """
-
-    #     if self.change_dcell.isChecked():  
-    #         self.table_dcell.setEditTriggers(QTableWidget.EditTrigger.AllEditTriggers)
-    #     else:
-    #         self.table_dcell.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        
 
     def importdp(self):
         self.dpfile, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -282,6 +255,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.dpfile:
             self.dpName.setText(f'{os.path.basename(self.dpfile)}')
             self.dppreceed = self.dpfile
+
+    def importext(self):
+        self.extfile, _  = QtWidgets.QFileDialog.getOpenFileName(
+            self, 'Seleccionar archivo de plan de extracción', '', 'CSV Files (*.csv);; Excel Files (*.xlsx);; Text Files (*.txt);; All files (*)'
+        )
+        if self.extfile:
+                self.extName.setText(f'{os.path.basename(self.extfile)}')
+                self.extpreceed = self.extfile
 
     def update_frag_model_state(self):
         """ Actualiza el estado de frag_model dependiendo del estado de stress_model """
