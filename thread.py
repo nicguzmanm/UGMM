@@ -1,5 +1,5 @@
 from PyQt6.QtCore import QThread, pyqtSignal
-from function.mainSimulator import sim
+from function.mainSim import sim
 import traceback
 
 class SimulationThread(QThread):
@@ -14,7 +14,7 @@ class SimulationThread(QThread):
     simulation_error = pyqtSignal(str)
     simulation_stop = pyqtSignal(bool)
 
-    def __init__(self, n, mvc, rangext, period, bmfile, dpfile, stress_activate, folder, ruta, dcell, savelist): # Entradas
+    def __init__(self, n, mvc, extfile, bmfile, dpfile, stress_activate, folder, ruta, dcell, savelist): # Entradas
         
         """ Constructor """
 
@@ -22,8 +22,7 @@ class SimulationThread(QThread):
         
         self.n = n
         self.mvc = mvc
-        self.range = rangext
-        self.period = period
+        self.extfile = extfile
         self.bmfile = bmfile
         self.dpfile = dpfile
         self.stress_activate = stress_activate
@@ -42,8 +41,7 @@ class SimulationThread(QThread):
             self.stress, self.extract, self.ton, self.grade, self.subfolder, self.error, self.fine_metal = sim(
                 int(self.n),
                 int(self.mvc),
-                int(self.range),
-                int(self.period),
+                self.extfile,
                 self.bmfile,
                 self.dpfile,
                 self.stress_activate, 

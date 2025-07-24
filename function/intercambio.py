@@ -1,6 +1,7 @@
 from numba import njit, prange
 import numpy as np
-from search_voids import search_voids
+from function.search import voids
+
 @njit
 def intercambiar_bloques_numba(bmodel, void2, pos, v1, destino_idx):
     """
@@ -201,7 +202,7 @@ def procesar_voids_paralelo(
                 cnt2 += 1
 
         # Llama a tu search_voids original, en numba
-        voids_data, pos_ab = search_voids(bmodel, pos_above, pos_level)
+        voids_data, pos_ab = voids(bmodel, pos_above, pos_level)
         movimientos[i, :] = voids_data
         posiciones[i, :]  = pos_ab
 

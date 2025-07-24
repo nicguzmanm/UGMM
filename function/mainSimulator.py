@@ -92,9 +92,6 @@ def sim(N, MVC, dp_tonnage_period, final_period, bm, dp, stress_activate, fold, 
         elif file_extension == '.xlsx':
             block_model = pd.read_excel(bm, header=0, skiprows=0)
         
-        #print(block_model)
-        #block_model = ordenar_modelo(block_model)
-
         block_model = block_model.to_numpy()
 
         """ Detectar irregularidades en X, Y y Z """

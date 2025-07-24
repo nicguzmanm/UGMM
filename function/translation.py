@@ -3,6 +3,8 @@ import numpy as np
 class Move():
     def __init__(self):
         pass
+
+    @staticmethod
     def translate_model(model: np.array):
         '''
         Traslada las coordenadas del modelo de bloques para que
@@ -24,7 +26,7 @@ class Move():
         # Devolver modelo y mínimos:
         return translated_model, min_x, min_y, min_z
 
-
+    @staticmethod
     def translate_points(points, origin_x, origin_y, origin_z):
         '''Traslada los puntos de extracción a un nuevo origen'''
         
@@ -33,9 +35,8 @@ class Move():
         
         # Trasladar las coordenadas restando el origen:
         translated_points[:, 0] -= origin_x
-        translated_points[:, 1] -= origin_y
-        translated_points[:, 2] -= origin_z
+        translated_points[:, 1] -= origin_z
+        translated_points[:, 2] -= origin_y
         
         # Devolver los puntos trasladados:
         return translated_points
-

@@ -2,7 +2,7 @@ import numpy as np
 from numba import njit
 
 @njit
-def search_voids(model, pos_above, pos_level):
+def voids(model, pos_above, pos_level):
     '''Cuenta la cantidad de vacíos y devuelve estados + d50'''
     voids_data = np.zeros(19, dtype=np.float64)  # [num_voids] + 9 estados + 9 d50
     num_voids = 0

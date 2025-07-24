@@ -276,7 +276,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def corrector(self): 
         try:
-            if not self.dppreceed or not self.bmpreceed:
+            if not self.dppreceed or not self.bmpreceed or not self.extpreceed:
                 QtWidgets.QMessageBox.warning(
                     self, '¡Advertencia!', 'Se necesita importar todos los archivos para continuar.'
                 )
@@ -285,8 +285,6 @@ class MainWindow(QtWidgets.QMainWindow):
             # Obtener valores de entrada
             self.n = self.inputN.text()
             self.mvc = self.inputMVC.text()
-            self.ton_per_period = self.inputton_per_period.text()
-            self.maxperiod = self.inputmaxperiod.text()
 
             # Verificar que todos los parámetros estén presentes
             if not self.n:
@@ -299,47 +297,14 @@ class MainWindow(QtWidgets.QMainWindow):
                     self, '¡Advertencia!', 'Debe ingresar el parametro MVC para continuar la simulación.'
                 )
                 return
-            if not self.maxperiod:
-                QtWidgets.QMessageBox.warning(
-                    self, '¡Advertencia!', 'Debe ingresar el número de periodos para continuar la simulación.'
-                )
-                return
-            if not self.ton_per_period:
-                QtWidgets.QMessageBox.warning(
-                    self, '¡Advertencia!', 'Debe ingresar el tonelaje por periodo por punto de extracción para continuar la simulación.'
-                )
-                return
-
-            # Convertir period y range a enteros
-            try:
-                period = int(self.maxperiod)
-                range_value = int(self.ton_per_period)
-            except ValueError:
-                QtWidgets.QMessageBox.warning(
-                    self, '¡Advertencia!', 'Los parámetros de periodos deben ser números enteros.'
-                )
-                return
-
 
             # Ejecutar 
-            self.sim_status.setText('') 
-            period_list = list(range(1, int(self.maxperiod)+1))
-            self.dialog = SaveDialog(period_list)
-            self.dialog.savefile.connect(self.extsavefile)  
-            decision = self.dialog.exec()
-            if decision == 1:
-                self.resimulate() # Funcion para volver al estado inicial la interfaz
-                self.run_simulation() # Funcion que dirije a la simulacion
+            self.sim_status.setText('')
 
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
             traceback.print_exc()
             print(e)
-
-    def extsavefile(self, savelist):
-        """ Aqui se recibe la lista de valores booleanos donde se ve que extraccion se guardara """
-
-        self.savelist = savelist
 
     def run_simulation(self):
         """ Ejecuta la simulacion en un hilo diferente """
@@ -352,13 +317,12 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.stress_activate = False
         self.ruta = os.path.dirname(os.path.normpath(self.ruta_completa))
-        self.dcell = [ # Activar
-           int(self.table_dcell.item(0, 1).text()),
-           int(self.table_dcell.item(1, 1).text()),
-           int(self.table_dcell.item(2, 1).text())
-        ]
+        self.dcell = [2,2,2]
+        
+        """ Entra a la simulación"""
+
         self.sim_thread = SimulationThread(
-            self.n, self.mvc,self.ton_per_period , self.maxperiod, self.bmpreceed, 
+            self.n, self.mvc,self.extpreceed, self.bmpreceed, 
             self.dppreceed,self.stress_activate, self.fold, self.ruta, self.dcell, self.savelist # Parametros de entrada
         )
         self.sim_thread.progress_updated.connect(self.update_progress)
