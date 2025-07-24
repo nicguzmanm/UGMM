@@ -1032,6 +1032,9 @@ QPushButton:disabled {
           </item>
           <item>
            <widget class="QPushButton" name="view3d">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="minimumSize">
              <size>
               <width>90</width>
@@ -1051,6 +1054,9 @@ QPushButton:disabled {
           </item>
           <item>
            <widget class="QPushButton" name="pushButton_6">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="minimumSize">
              <size>
               <width>90</width>
