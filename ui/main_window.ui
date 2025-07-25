@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1037</width>
+    <width>942</width>
     <height>624</height>
    </rect>
   </property>
@@ -515,23 +515,6 @@ QPushButton:disabled {
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0" colspan="2">
-          <widget class="QLabel" name="label_12">
-           <property name="styleSheet">
-            <string notr="true">font-weight: bold;</string>
-           </property>
-           <property name="text">
-            <string>Simulación:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0" colspan="2">
-          <widget class="QProgressBar" name="progressBar">
-           <property name="value">
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="0" colspan="2">
           <widget class="QCheckBox" name="stress_model">
            <property name="enabled">
@@ -623,6 +606,30 @@ QPushButton:disabled {
            </property>
           </widget>
          </item>
+         <item row="0" column="0" colspan="2">
+          <widget class="QLabel" name="label_12">
+           <property name="styleSheet">
+            <string notr="true">font-weight: bold;</string>
+           </property>
+           <property name="text">
+            <string>Simulación:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0" colspan="2">
+          <widget class="QProgressBar" name="progressBar">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="sim_status">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
@@ -644,7 +651,7 @@ QPushButton:disabled {
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -866,7 +873,7 @@ QPushButton:disabled {
          </layout>
         </item>
         <item>
-         <widget class="QGraphicsView" name="graphlayout2d"/>
+         <layout class="QHBoxLayout" name="graphlayout2d"/>
         </item>
        </layout>
       </widget>
@@ -897,7 +904,7 @@ QPushButton:disabled {
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox_3">
+           <widget class="QComboBox" name="extrbox3d">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -937,7 +944,7 @@ QPushButton:disabled {
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QComboBox" name="comboBox_4">
+           <widget class="QComboBox" name="cat3d">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1053,7 +1060,7 @@ QPushButton:disabled {
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_6">
+           <widget class="QPushButton" name="gif3d">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -1090,7 +1097,7 @@ QPushButton:disabled {
          </layout>
         </item>
         <item>
-         <widget class="QGraphicsView" name="graphicsView_2"/>
+         <layout class="QHBoxLayout" name="graphlayout3d"/>
         </item>
        </layout>
       </widget>
@@ -1103,7 +1110,7 @@ QPushButton:disabled {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1037</width>
+     <width>942</width>
      <height>22</height>
     </rect>
    </property>

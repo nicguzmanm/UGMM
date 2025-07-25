@@ -79,6 +79,15 @@ class MainWindow(QtWidgets.QMainWindow):
         # Correr Simulación
         self.simButton.clicked.connect(self.corrector)
 
+        # Poner un canvas en el lugar donde ira la grafica
+        self.figure = plt.figure()
+        self.canvas = FigureCanvas(self.figure)
+        self.graphlayout2d.addWidget(self.canvas)
+
+        self.figure3d = plt.figure()
+        self.canvas3d = FigureCanvas(self.figure3d)
+        self.graphlayout3d.addWidget(self.canvas3d)
+
         # Graficar en 3D
         self.view3d.clicked.connect(self.graficar3d)
 
@@ -180,7 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.extpreceed = None
         self.stress = None
         self.fine_metal = None
-        self.period = None
+        self.num_period = None
         self.ton = None
         self.acum_ton = None
         self.grade = None
@@ -239,15 +248,15 @@ class MainWindow(QtWidgets.QMainWindow):
             #         self, 'Error', 'Formato inconsistente para un modelo de bloques.'
             #     )
             #     return
+        
     def namefile(self,ruta):
-        " Devolver la ruta de la pestaña emergente "
+        """ Devolver la ruta de la pestaña emergente """
 
         if ruta is not None:
             self.bmfile = ruta
             self.bmName.setText(f'{os.path.basename(self.bmfile)}')
             self.bmpreceed = self.bmfile
         
-
     def importdp(self):
         self.dpfile, _ = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Seleccionar archivo de puntos de extracción', '', 'CSV Files (*.csv);; Excel Files (*.xlsx);; Text Files (*.txt);; All files (*)'
@@ -261,8 +270,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self, 'Seleccionar archivo de plan de extracción', '', 'CSV Files (*.csv);; Excel Files (*.xlsx);; Text Files (*.txt);; All files (*)'
         )
         if self.extfile:
-                self.extName.setText(f'{os.path.basename(self.extfile)}')
-                self.extpreceed = self.extfile
+            self.extName.setText(f'{os.path.basename(self.extfile)}')
+            self.extpreceed = self.extfile
+            df_periodos = pd.read_csv(self.extpreceed, index_col=0)
+            tonelaje_objetivo_por_periodo = {
+            int(periodo): df_periodos[periodo].dropna().to_dict()
+            for periodo in df_periodos.columns
+            }
+            self.num_period = len(tonelaje_objetivo_por_periodo)
+
 
     def update_frag_model_state(self):
         """ Actualiza el estado de frag_model dependiendo del estado de stress_model """
@@ -297,9 +313,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     self, '¡Advertencia!', 'Debe ingresar el parametro MVC para continuar la simulación.'
                 )
                 return
-
+            
             # Ejecutar 
             self.sim_status.setText('')
+            self.resimulate()
+            self.run_simulation()
 
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, 'Error', f'An error occurred: {e}')
@@ -323,7 +341,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.sim_thread = SimulationThread(
             self.n, self.mvc,self.extpreceed, self.bmpreceed, 
-            self.dppreceed,self.stress_activate, self.fold, self.ruta, self.dcell, self.savelist # Parametros de entrada
+            self.dppreceed,self.stress_activate, self.fold, self.ruta, self.dcell # Parametros de entrada
         )
         self.sim_thread.progress_updated.connect(self.update_progress)
         self.sim_thread.simulation_finished.connect(self.simulation_finished) # En esta funcion se define la salida
@@ -366,18 +384,17 @@ class MainWindow(QtWidgets.QMainWindow):
             )
             self.fine_metal = fine_metal
             self.stress = stress
-            self.period = period
+            self.num_period = period
             self.ton = ton
             self.simfolder = simfolder
             self.ton = ton
             self.grade = grade
             simfolder = os.path.normpath(simfolder)
             self.sim_status.setText(rf'Simulación guardada en {os.path.join(*simfolder.split(os.sep)[-3:])}')
-            
 
             # Creacion del archivo de resultados
             # Extraccion, Esfuerzo, Ton, Ton acumulada, Ley, Ley acumulada
-            inforesult = {"Periodo": self.period, "Esfuerzos": self.stress,
+            inforesult = {"Periodo": self.num_period, "Esfuerzos": self.stress,
                           "Tonelaje": self.ton, "Tonelaje metal fino": self.fine_metal,
                           "Ley": self.grade }
             df = pd.DataFrame(inforesult)
@@ -386,7 +403,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # Se agregan las extracciones que se simularon en la pestaña de grafica para poder visualizarlas
             self.extrbox = self.findChild(QtWidgets.QComboBox,'extrbox')
-            for i in self.period:
+            for i in self.num_period:
                 self.extrbox.addItem(f'{i}')
 
             # Categorias que el usario eligira para visualizar los colores en la grafica
@@ -404,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # al ser interrumpida
 
             self.stress = None
-            self.period = None
+            self.num_period = None
             self.ton = None
             self.grade = None
             self.fine_metal = None
@@ -424,7 +441,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # debido a un error
 
             self.stress = None
-            self.period = None
+            self.num_period = None
             self.ton = None
             self.grade = None
             self.fine_metal = None
@@ -463,7 +480,7 @@ class MainWindow(QtWidgets.QMainWindow):
         se vera la cota en que se encuentra la coordenada a realizar el corte
         """
         try:
-            self.bmodel=pd.read_csv(rf'{self.simfolder}\\modelo_actualizado_{self.extrbox.currentText()}_{os.path.basename(self.simfolder)}.csv')
+            self.bmodel=pd.read_csv(rf'{self.simfolder}\\modelo_actualizado_periodo_{self.extrbox.currentText()}.txt')
         except:
             self.corte.setEnabled(False)
             self.grapher.setEnabled(False)
@@ -645,13 +662,13 @@ class MainWindow(QtWidgets.QMainWindow):
         return self.figure
         
     def giftear(self):
-        image = [None] * len(self.period)
+        image = [None] * len(self.num_period)
         i=0
         if self.value_axe[0] == False:  
             
-            for value in self.period:
+            for value in self.num_period:
                 # Graficar Y vs Z
-                self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_{value}_{os.path.basename(self.simfolder)}.csv')    
+                self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_periodo_{value}.txt')    
                 self.cut_filter = self.bmodel[self.bmodel.iloc[:,0] == int(self.update_axe.text())] # Filtra en X
                 self.figif = self.graficar(self.cut_filter.iloc[:,1],
                     self.cut_filter.iloc[:,2],
@@ -661,9 +678,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axe.text()}.png',format='png')
                 i+=1
         elif self.value_axe[1] == False:    
-            for value in self.period:
+            for value in self.num_period:
                 # Graficar X vs Z
-                self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_{value}_{os.path.basename(self.simfolder)}.csv')    
+                self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_periodo_{value}.txt')    
                 self.cut_filter = self.bmodel[self.bmodel.iloc[:,1] == int(self.update_axe.text())] # Filtra en X
                 self.figif = self.graficar(self.cut_filter.iloc[:,0],
                     self.cut_filter.iloc[:,2],
@@ -673,9 +690,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axe.text()}.png',format='png')
                 i+=1
         else:                 
-            for value in self.period:
+            for value in self.num_period:
                 # Graficar X vs Y
-                self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_{value}_{os.path.basename(self.simfolder)}.csv')    
+                self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_periodo_{value}.txt')    
                 self.cut_filter = self.bmodel[self.bmodel.iloc[:,2] == int(self.update_axe.text())] # Filtra en X
                 self.figif = self.graficar(self.cut_filter.iloc[:,0],
                     self.cut_filter.iloc[:,1],
@@ -686,7 +703,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 i+=1
         frames = [Image.open(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\{img}') for img in image]
         frames[0].save(
-            f"{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\gif_ext{self.period}_cut{self.update_axe.text()}.gif",
+            f"{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\gif_ext{self.num_period}_cut{self.update_axe.text()}.gif",
             save_all=True,
             append_images=frames[1:],
             optimize=True,
@@ -695,7 +712,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         for img in image: # Borrar fotos de la grafica
             os.remove(f'{self.simfolder}\\{img}')
-        gif_dialog = GifDialog(f"{self.simfolder}\\gif_ext{self.period}_cut{self.update_axe.text()}.gif")
+        gif_dialog = GifDialog(f"{self.simfolder}\\gif_ext{self.num_period}_cut{self.update_axe.text()}.gif")
         gif_dialog.set_save_path(f"{self.fold}\\{os.path.basename(self.simfolder)}")
         gif_dialog.exec()
     
@@ -709,7 +726,7 @@ class MainWindow(QtWidgets.QMainWindow):
         ax = self.figure3d.add_subplot(111, projection='3d')
         
         try:
-            bm3d = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_{self.period[-1]}_{os.path.basename(self.simfolder)}.csv')
+            bm3d = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\bloques_extraidos_periodo_{self.extrbox3d.currentText()}.csv', sep=';')
             
         except:
             self.state_graph3d = False
@@ -753,14 +770,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.simButton.setEnabled(False)
         self.inputN.setEnabled(False)
         self.inputMVC.setEnabled(False)
-        self.inputton_per_period.setEnabled(False)
-        self.inputmaxperiod.setEnabled(False)
         self.stress_model.setEnabled(False)
         self.frag_model.setEnabled(False)
         self.bmImportButton.setEnabled(False)
         self.dpImportButton.setEnabled(False)
+        self.extImportButton.setEnabled(False)
         self.bmMenubar.setEnabled(False)
         self.dpMenubar.setEnabled(False)
+        self.extMenubar.setEnabled(False)
         self.salida.setEnabled(False)
         self.gif.setEnabled(False)
         self.view3d.setEnabled(False)
@@ -771,19 +788,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.simButton.setEnabled(True)
         self.inputN.setEnabled(True)
         self.inputMVC.setEnabled(True)
-        self.inputton_per_period.setEnabled(True)
-        self.inputmaxperiod.setEnabled(True)
         self.stress_model.setEnabled(False)
         self.update_frag_model_state()
         self.bmImportButton.setEnabled(True)
         self.dpImportButton.setEnabled(True)
+        self.extImportButton.setEnabled(True)
         self.graphx.setEnabled(True)
         self.graphy.setEnabled(True)
         self.graphz.setEnabled(True)
-        self.save_graph_axe.setEnabled(True)
         self.stop.setEnabled(False)
         self.bmMenubar.setEnabled(True)
         self.dpMenubar.setEnabled(True)
+        self.extMenubar.setEnabled(True)
         self.salida.setEnabled(True)
         self.view3d.setEnabled(True)
 
@@ -793,41 +809,47 @@ class MainWindow(QtWidgets.QMainWindow):
         self.simButton.setEnabled(True)
         self.inputN.setEnabled(True)
         self.inputMVC.setEnabled(True)
-        self.inputton_per_period.setEnabled(True)
-        self.inputmaxperiod.setEnabled(True)
         self.stress_model.setEnabled(False)
         self.update_frag_model_state()
         self.bmImportButton.setEnabled(True)
         self.dpImportButton.setEnabled(True)
+        self.extImportButton.setEnabled(True)
         self.graphx.setEnabled(False)
         self.graphy.setEnabled(False)
         self.graphz.setEnabled(False)
-        self.save_graph_axe.setEnabled(False)
         self.stop.setEnabled(False)
         self.bmMenubar.setEnabled(True)
         self.dpMenubar.setEnabled(True)
+        self.extMenubar.setEnabled(True)
         self.progressBar.setValue(0)
-        self.view3d.setEnabled(True)
+        self.view3d.setEnabled(False)
 
     def resimulate(self):
         """ Volver al estado inicial si se desea simular de nuevo """
 
-        self.corte.setEnabled(False)
-        self.corte.setValue(0)
+        self.cortex.setEnabled(False)
+        self.cortex.setValue(0)
+        self.cortey.setEnabled(False)
+        self.cortey.setValue(0)
+        self.cortez.setEnabled(False)
+        self.cortez.setValue(0)
         self.grapher.setEnabled(False)
-        self.update_axe.setEnabled(False)
-        self.update_axe.clear()
-        self.save_graph_axe.setEnabled(False)
+        self.update_axex.setEnabled(False)
+        self.update_axex.clear()
+        self.update_axey.setEnabled(False)
+        self.update_axey.clear()
+        self.update_axez.setEnabled(False)
+        self.update_axez.clear()
+        self.grapher.setEnabled(False)
+        self.gif.setEnabled(False)
         self.graphx.setEnabled(False)
         self.graphy.setEnabled(False)
         self.graphz.setEnabled(False)
         self.graphx.setChecked(False)
         self.graphy.setChecked(False)
         self.graphz.setChecked(False)
-        self.mincut.setText('Mínimo')
-        self.maxcut.setText('Máximo')
-        self.coord.setText('Coordenada')
         self.extrbox.clear()
+        self.extrbox3d.clear()
         self.cat.clear()
         self.cat3d.clear()
         self.figure.clear()
@@ -841,7 +863,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def openresult(self):
         """ Mostrar resultados concretos en una ventana aparte """
-        win = Resultados(stress = self.stress, period = self.period, ton = self.ton, acum_ton = self.acum_ton, grade = self.grade, acum_grade = self.acum_grade, ruta = self.simfolder, fine_metal = self.fine_metal)
+        win = Resultados(stress = self.stress, period = self.num_period, ton = self.ton, acum_ton = self.acum_ton, grade = self.grade, acum_grade = self.acum_grade, ruta = self.simfolder, fine_metal = self.fine_metal)
         win.exec()
 
     def open_result_folder(self,fold):

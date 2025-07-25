@@ -14,7 +14,7 @@ class SimulationThread(QThread):
     simulation_error = pyqtSignal(str)
     simulation_stop = pyqtSignal(bool)
 
-    def __init__(self, n, mvc, extfile, bmfile, dpfile, stress_activate, folder, ruta, dcell, savelist): # Entradas
+    def __init__(self, n, mvc, extfile, bmfile, dpfile, stress_activate, folder, ruta, dcell): # Entradas
         
         """ Constructor """
 
@@ -29,7 +29,6 @@ class SimulationThread(QThread):
         self.folder = folder
         self.ruta = ruta
         self.dcell = dcell
-        self.savelist = savelist
         self.stop_sim = False
 
     def run(self):
@@ -46,7 +45,7 @@ class SimulationThread(QThread):
                 self.dpfile,
                 self.stress_activate, 
                 self.folder, self.ruta,
-                self.dcell, self.savelist,
+                self.dcell,
                 self.progress_updated.emit,
                 self.check_stop_sim
             )

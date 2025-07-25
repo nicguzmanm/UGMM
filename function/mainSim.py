@@ -16,7 +16,7 @@ import time
 
 import traceback
 
-def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, update_progress=None, stop_sim = False):
+def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress=None, stop_sim = False):
     try:
         # Setear barra de progreso a 0
         if update_progress:
@@ -48,21 +48,6 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
         fu = [1.0, 0.91, 0.78, 0.22, 0.05]
         vload = 1
 
-        # Se definen los periodos que el usuario guardara, en una lista con true y false
-        period_save = [None] * sum(savelist)
-        
-        # Indices que se usan para guardar informacion
-        num_iter = 0
-        num_iter_saved = 0
-        # Variables retornadas de la simulacion, que son mostradas en la pestaña de resultados
-        if stress_activate:
-            esf=[None] * int(sum(savelist)) # Variable retornada (Esfuerzos por periodo)
-        else:
-            esf=['-'] * int(sum(savelist)) # Variable retornada al no seleccionar el modelo de esfuerzo
-                                            # (Esfuerzos por periodo)
-        mean_grade = [0] * int(sum(savelist)) # Variable retornada (Ley media por periodo)
-        tonnage = [0] * int(sum(savelist)) # Variable retornada (Tonelada por periodo)
-        fine_metal = [0] * int(sum(savelist))
         
         # Alerta, que indica si la simulacion termino con error o si termino exitosamente o termino
         # por indicaciones del usuario
@@ -91,7 +76,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
         t_inicio_rebloqueo = time.time()
         block_model2 = Generate.modelo_peque(block_model1, dcell[0])
         t_fin_rebloqueo = time.time()
-        print(f"Tiempo del rebloqueo: {t_fin_rebloqueo - t_inicio_rebloqueo:.2f} segundos")
+        #print(f"Tiempo del rebloqueo: {t_fin_rebloqueo - t_inicio_rebloqueo:.2f} segundos")
         block_model = orden(block_model2)
         block_model, origin_x, origin_y, origin_z = Move.translate_model(block_model)
         
@@ -167,7 +152,26 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
             for periodo in df_periodos.columns
         }
         final_period = len(tonelaje_objetivo_por_periodo)
+        
+        # Se definen los periodos que se guardaran
+        period_save = [None] * final_period
+        
+        # Indices que se usan para guardar informacion
+        num_iter = 0
+        num_iter_saved = 0
+        # Variables retornadas de la simulacion, que son mostradas en la pestaña de resultados
+        if stress_activate:
+            esf=[None] * int(final_period) # Variable retornada (Esfuerzos por periodo)
+        else:
+            esf=['-'] * int(final_period) # Variable retornada al no seleccionar el modelo de esfuerzo
+                                            # (Esfuerzos por periodo)
+        mean_grade = [0] * int(final_period) # Variable retornada (Ley media por periodo)
+        tonnage = [0] * int(final_period) # Variable retornada (Tonelada por periodo)
+        fine_metal = [0] * int(final_period)
 
+        inc_progress = ( sum(tonelaje_objetivo_por_periodo) ) * final_period/4.4
+        print(sum(tonelaje_objetivo_por_periodo)/inc_progress)
+        
         """ Inicio de simulación """
         for i in range(num_simulations):
             
@@ -199,6 +203,11 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                         tonelaje_por_punto = {codigo: 0 for codigo in drawpoints_df['codigo']}
                         tonelaje_por_id = {}
 
+                        #----------------------------------------------------------------------------------------------------------------------------------
+                        progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                        if stop_requested:
+                            return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                        #----------------------------------------------------------------------------------------------------------------------------------
 
                         # Actualizar las extracciones:
                         extractions = min_extraction if period == 1 else min_extraction + 1
@@ -216,7 +225,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                                 if tonelaje < tonelaje_por_punto_objetivo.get(codigo, float('inf'))
                             ])]
                             t_puntos_activos= time.time()
-                            print(f"Tiempo puntos activos {extractions}: {t_puntos_activos - t_inicio_extraccion:.2f} s")
+                            #print(f"Tiempo puntos activos {extractions}: {t_puntos_activos - t_inicio_extraccion:.2f} s")
                             # Si no hay puntos activos, romper el bucle
                             if puntos_activos_df.empty:
                                 print("Todos los puntos han alcanzado su li­mite.")
@@ -234,11 +243,15 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             min_y, max_y = min(y), max(y)
                             min_z, max_z = min(z), max(z)
                             t_antes_flujo = time.time()
-                            print(f"Tiempo antes flujo {extractions}: {t_antes_flujo - t_inicio_extraccion:.2f} s")
+                            #print(f"Tiempo antes flujo {extractions}: {t_antes_flujo - t_inicio_extraccion:.2f} s")
                             # # CÃ¡lculo de la fragmentaciÃ³n:
                             # sizem = fragmentation(size, fu, vload)
                             # frag50 = (sizem[3] * 10) / (max_y - min_y)
-
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            if stop_requested:
+                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            #----------------------------------------------------------------------------------------------------------------------------------
                             # BÃºsqueda de vacÃ­os y cambios de estado:                  
                             flow_outputs = Flow.draw(
                                 bmodel=block_model,
@@ -254,7 +267,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                                 wr=-99
                             )
                             t_despues_flujo = time.time()
-                            print(f"Tiempo despues flujo {extractions}: {t_despues_flujo - t_inicio_extraccion:.2f} s")
+                            #print(f"Tiempo despues flujo {extractions}: {t_despues_flujo - t_inicio_extraccion:.2f} s")
                             # Recuperar modelo despuÃ©s del flujo:
                             flow_block_model = flow_outputs[0]
 
@@ -267,7 +280,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             
                             first_idx = {}
                             t_rec_model=time.time()
-                            print(f"Tiempo recuperar modelo {extractions}: {t_rec_model - t_inicio_extraccion:.2f} s")
+                            #print(f"Tiempo recuperar modelo {extractions}: {t_rec_model - t_inicio_extraccion:.2f} s")
                             for pos, idv in zip(indices_ex, ids_ex):
                                 if idv not in first_idx:
                                     first_idx[idv] = pos
@@ -278,7 +291,11 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             dens_sum = defaultdict(float)
                             for pos, idv in zip(indices_ex, ids_ex):
                                 dens_sum[idv] += dens_arr[pos] * vol
-                            
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            if stop_requested:
+                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            #----------------------------------------------------------------------------------------------------------------------------------
                             # 3) Extrae de golpe las coordenadas de los DP en un array Nx3:
                             dp_coords = drawpoints_df[['x', 'y', 'z']].to_numpy()
                             # Primero convierte a float32 tus coordenadas y objetivos:
@@ -325,7 +342,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             # Actualizar el listado de bloques:
                             old_blocks = new_blocks.copy()
                             t_fin_extraccion = time.time()
-                            print(f"Tiempo de extraccion {extractions}: {t_fin_extraccion - t_inicio_extraccion:.2f} s")
+                            #print(f"Tiempo de extraccion {extractions}: {t_fin_extraccion - t_inicio_extraccion:.2f} s")
 
                             # Actualizar la extracciÃ³n:
                             extractions += step_extraction
@@ -334,11 +351,15 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             
                             # ids de los bloques reciÃ©n extraÃ­dos
                             ids_arr = np.array(bloques_id_nuevos, dtype=np.int64)
-                            
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            if stop_requested:
+                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            #----------------------------------------------------------------------------------------------------------------------------------
                             # Calcula tonelaje, fines y ley media de cada ID en JIT
                             tons_arr, fines_arr, ley_arr = compute_tonnage_and_fines(flow_block_model, ids_arr, block_volume)
                             t_dic1 = time.time()
-                            print(f"diccionario1 tiempo {extractions}: {t_dic1 - t_inicio_extraccion:.2f} segundos")
+                            #print(f"diccionario1 tiempo {extractions}: {t_dic1 - t_inicio_extraccion:.2f} segundos")
                             # Actualiza tus diccionarios
                             # Preprocesar: crear un Ã­ndice booleano por cada ID solo una vez
                             ids_unicos, idx_inverso = np.unique(ids_arr, return_inverse=True)
@@ -359,10 +380,14 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             # Actualizar los IDs ya registrados
                             ids_ya_registrados.update(bloques_id_nuevos)
                             t_dic = time.time()
-                            print(f"diccionario tiempo {extractions}: {t_dic - t_inicio_extraccion:.2f} segundos")
+                            #print(f"diccionario tiempo {extractions}: {t_dic - t_inicio_extraccion:.2f} segundos")
                             if 'primeros_cambios' not in locals():
                                 primeros_cambios = {}
-
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            if stop_requested:
+                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            #----------------------------------------------------------------------------------------------------------------------------------
                             for pos in indices_ex:
                                 idv = int(flow_block_model[pos, 5])
                                 x_b, y_b, z_b = flow_block_model[pos, 0:3]
@@ -390,13 +415,18 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                             
                                 # Coordenadas del bloque
                                 coord = np.array([x_b, y_b, z_b])
-                            
+                                #----------------------------------------------------------------------------------------------------------------------------------
+                                progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                                if stop_requested:
+                                    return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                #----------------------------------------------------------------------------------------------------------------------------------
+
                                 # Buscar el punto de extracción más cercano
                                 diffs = dp_coords - coord
                                 d2 = np.einsum('ij,ij->i', diffs, diffs)
                                 j = np.argmin(d2)
                                 punto = drawpoints_df.iloc[j, 0]
-                            
+                                
                                 # Guardar la información del bloque extraído
                                 primeros_cambios[clave_unica] = {
                                     "x": x_b,
@@ -413,9 +443,14 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                                 # Tonelaje acumulado por punto
                                 tonelaje = dens_sum.get(idv, 0)
                                 tonelaje_por_punto[punto] = tonelaje_por_punto.get(punto, 0) + tonelaje
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            if stop_requested:
+                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            #----------------------------------------------------------------------------------------------------------------------------------
 
                             t_bloques_nuevos = time.time()
-                            print(f"index tiempo {extractions}: {t_bloques_nuevos - t_inicio_extraccion:.2f} segundos")
+                            #print(f"index tiempo {extractions}: {t_bloques_nuevos - t_inicio_extraccion:.2f} segundos")
                             print("Tonelaje por punto de extraccion:")
                             for punto, t in tonelaje_por_punto.items():#############
                                 print(f"  Punto {punto}: {t:.2f} t")####################
@@ -425,7 +460,12 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                                 for codigo in drawpoints_df['codigo']
                             )
                             t_fin_extraccion_punto = time.time()
-                            print(f"Tiempo paso de extraccion {extractions}: {t_fin_extraccion_punto - t_inicio_extraccion:.2f} s")
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            if stop_requested:
+                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            #----------------------------------------------------------------------------------------------------------------------------------
+                            #print(f"Tiempo paso de extraccion {extractions}: {t_fin_extraccion_punto - t_inicio_extraccion:.2f} s")
                             if extraccion_completa:
                                 # Exportar un archivo con los bloques extraÃ­dos por perÃ­odo:
                                 # filtered_blocks = flow_block_model[blocks_per_period]
@@ -435,7 +475,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                                 # flow_block_model[flow_block_model[:, 11] > 0, 3] = 1
                                 # Exportar el modelo actualizado:
                                 col_names = 'x z y state d50 id dist distacum grade dens mi period'
-                                np.savetxt(f'modelo_actualizado_periodo_{period}.txt', flow_block_model, header=col_names, comments='')
+                                np.savetxt(f'{simfolder}/modelo_actualizado_periodo_{period}.txt', flow_block_model, header=col_names, comments='')
                                 # ğ Exportar a Excel las primeras apariciones:
                                 df_cambios = pd.DataFrame.from_dict(primeros_cambios, orient="index")
                                 df_cambios.reset_index(inplace=True)
@@ -449,43 +489,24 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                                     )
                                     idx_min = distancias.idxmin()
                                     return drawpoints_df.loc[idx_min, 'codigo']
-                                
+                                #----------------------------------------------------------------------------------------------------------------------------------
+                                progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                                if stop_requested:
+                                    return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                #----------------------------------------------------------------------------------------------------------------------------------
+
                                 # Aplicar la funciÃ³n para asignar el punto de extracciÃ³n
                                 df_cambios['punto_extraccion'] = df_cambios.apply(
                                     lambda row: encontrar_punto_extraccion(row, drawpoints_df),
                                     axis=1
                                 )
                                 
-                                # ğ Final: Guardar Excel con la nueva columna
-                                df_cambios.to_excel(f"bloques_extraidos_periodo_{period}.xlsx", index=False)
+                                # ğ Final: Guardar CSV con la nueva columna
+                                df_cambios.to_csv(f"{simfolder}/bloques_extraidos_periodo_{period}.csv", sep=';', index=False)
                                 break
                             # Actualizar el modelo de bloques:
                             block_model = flow_block_model
                         
-                        # Actualizar el perÃ­odo:
-                        column_names = ['x', 'y', 'z', 'state', 'd50', 'id', 'dist', 'distacum', 'grade', 'density', 'mi', 'period']
-                        df_model = pd.DataFrame(block_model, columns=column_names)
-                        column_names1 =  ['x', 'z', 'y', 'state', 'd50', 'id', 'dist', 'distacum', 'grade', 'density', 'mi', 'period']
-                        df_model1 = pd.DataFrame(block_model, columns=column_names1)
-                        fig = px.scatter_3d(
-                            df_model1[df_model1['state'] == 2],  # Filtra si quieres solo bloques extraÃ­dos
-                            x="x", y="y", z="z",               # AtenciÃ³n: estÃ¡s invirtiendo y/z para mejor visualizaciÃ³n
-                            color="state",
-                            color_continuous_scale="Viridis",
-                            opacity=0.7,
-                            title=f"Modelo de Bloques - Estado - Período {period}"
-                        )
-                        fig.update_traces(marker=dict(size=6))
-                        fig.update_layout(scene=dict(aspectmode="data"))
-                        fig.show()
-
-                        # # Guardar archivo HTML
-                        nombre_archivo = f"modelo_3d_interactivo_periodo{period}.html"
-                        fig.write_html(nombre_archivo)
-
-                        # Abrir automÃ¡ticamente en el navegador
-                        ruta_completa = os.path.abspath(nombre_archivo)
-                        webbrowser.open(f"file://{ruta_completa}")
                         t_fin_periodo = time.time()
                         print(f"Tiempo para el peri­odo {period}: {t_fin_periodo - t_inicio_periodo:.2f} segundos")
 
@@ -551,7 +572,6 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, savelist, updat
                 # Exportar a Excel
                 df_bloques_agregados = pd.DataFrame(resultados_agregados)
                 df_bloques_agregados.to_excel(f"{simfolder}/modelo_diluido.xlsx", index=False)
-                print("✅ Archivo 'modelo_diluido.xlsx' generado con éxito.")
             return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
     except Exception as e:
         traceback.print_exc()

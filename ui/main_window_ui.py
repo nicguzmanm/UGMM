@@ -17,11 +17,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
-    QGraphicsView, QGridLayout, QHBoxLayout, QLabel,
-    QLayout, QLineEdit, QMainWindow, QMenu,
-    QMenuBar, QProgressBar, QPushButton, QSizePolicy,
-    QSlider, QSpacerItem, QStatusBar, QTabWidget,
-    QToolButton, QVBoxLayout, QWidget)
+    QGridLayout, QHBoxLayout, QLabel, QLayout,
+    QLineEdit, QMainWindow, QMenu, QMenuBar,
+    QProgressBar, QPushButton, QSizePolicy, QSlider,
+    QSpacerItem, QStatusBar, QTabWidget, QToolButton,
+    QVBoxLayout, QWidget)
 
 from superqt.sliders import QRangeSlider
 
@@ -29,7 +29,7 @@ class Ui_main_window(object):
     def setupUi(self, main_window):
         if not main_window.objectName():
             main_window.setObjectName(u"main_window")
-        main_window.resize(1037, 627)
+        main_window.resize(942, 624)
         icon = QIcon()
         icon.addFile(u"../assets/dark_UGMM.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         main_window.setWindowIcon(icon)
@@ -304,8 +304,8 @@ class Ui_main_window(object):
         self.bmMenubar.setObjectName(u"bmMenubar")
         self.dpMenubar = QAction(main_window)
         self.dpMenubar.setObjectName(u"dpMenubar")
-        self.actionImportar_Plan_de_Extracci_n = QAction(main_window)
-        self.actionImportar_Plan_de_Extracci_n.setObjectName(u"actionImportar_Plan_de_Extracci_n")
+        self.extMenubar = QAction(main_window)
+        self.extMenubar.setObjectName(u"extMenubar")
         self.salida = QAction(main_window)
         self.salida.setObjectName(u"salida")
         self.result_folders = QAction(main_window)
@@ -345,10 +345,10 @@ class Ui_main_window(object):
 
         self.gridLayout.addWidget(self.dpImportButton, 2, 2, 1, 1)
 
-        self.toolButton_3 = QToolButton(self.frame)
-        self.toolButton_3.setObjectName(u"toolButton_3")
+        self.extImportButton = QToolButton(self.frame)
+        self.extImportButton.setObjectName(u"extImportButton")
 
-        self.gridLayout.addWidget(self.toolButton_3, 3, 2, 1, 1)
+        self.gridLayout.addWidget(self.extImportButton, 3, 2, 1, 1)
 
         self.bmImportButton = QToolButton(self.frame)
         self.bmImportButton.setObjectName(u"bmImportButton")
@@ -361,10 +361,10 @@ class Ui_main_window(object):
 
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
 
-        self.lineEdit_3 = QLineEdit(self.frame)
-        self.lineEdit_3.setObjectName(u"lineEdit_3")
+        self.extName = QLineEdit(self.frame)
+        self.extName.setObjectName(u"extName")
 
-        self.gridLayout.addWidget(self.lineEdit_3, 3, 1, 1, 1)
+        self.gridLayout.addWidget(self.extName, 3, 1, 1, 1)
 
         self.label_4 = QLabel(self.frame)
         self.label_4.setObjectName(u"label_4")
@@ -463,18 +463,6 @@ class Ui_main_window(object):
         self.frame_4.setFrameShadow(QFrame.Raised)
         self.gridLayout_4 = QGridLayout(self.frame_4)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.label_12 = QLabel(self.frame_4)
-        self.label_12.setObjectName(u"label_12")
-        self.label_12.setStyleSheet(u"font-weight: bold;")
-
-        self.gridLayout_4.addWidget(self.label_12, 0, 0, 1, 2)
-
-        self.progressBar = QProgressBar(self.frame_4)
-        self.progressBar.setObjectName(u"progressBar")
-        self.progressBar.setValue(0)
-
-        self.gridLayout_4.addWidget(self.progressBar, 7, 0, 1, 2)
-
         self.stress_model = QCheckBox(self.frame_4)
         self.stress_model.setObjectName(u"stress_model")
         self.stress_model.setEnabled(False)
@@ -514,6 +502,23 @@ class Ui_main_window(object):
         self.frag_model.setEnabled(False)
 
         self.gridLayout_4.addWidget(self.frag_model, 3, 0, 1, 2)
+
+        self.label_12 = QLabel(self.frame_4)
+        self.label_12.setObjectName(u"label_12")
+        self.label_12.setStyleSheet(u"font-weight: bold;")
+
+        self.gridLayout_4.addWidget(self.label_12, 0, 0, 1, 2)
+
+        self.progressBar = QProgressBar(self.frame_4)
+        self.progressBar.setObjectName(u"progressBar")
+        self.progressBar.setValue(0)
+
+        self.gridLayout_4.addWidget(self.progressBar, 7, 0, 1, 2)
+
+        self.sim_status = QLabel(self.frame_4)
+        self.sim_status.setObjectName(u"sim_status")
+
+        self.gridLayout_4.addWidget(self.sim_status, 8, 0, 1, 1)
 
 
         self.verticalLayout.addWidget(self.frame_4)
@@ -629,6 +634,7 @@ class Ui_main_window(object):
 
         self.grapher = QPushButton(self.tab)
         self.grapher.setObjectName(u"grapher")
+        self.grapher.setEnabled(False)
         self.grapher.setMinimumSize(QSize(90, 25))
         self.grapher.setMaximumSize(QSize(90, 16777215))
 
@@ -636,6 +642,7 @@ class Ui_main_window(object):
 
         self.gif = QPushButton(self.tab)
         self.gif.setObjectName(u"gif")
+        self.gif.setEnabled(False)
         self.gif.setMinimumSize(QSize(90, 25))
         self.gif.setMaximumSize(QSize(90, 16777215))
 
@@ -648,10 +655,10 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
 
-        self.graphlayout2d = QGraphicsView(self.tab)
+        self.graphlayout2d = QHBoxLayout()
         self.graphlayout2d.setObjectName(u"graphlayout2d")
 
-        self.verticalLayout_2.addWidget(self.graphlayout2d)
+        self.verticalLayout_2.addLayout(self.graphlayout2d)
 
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QWidget()
@@ -668,13 +675,13 @@ class Ui_main_window(object):
 
         self.gridLayout_6.addWidget(self.label_15, 0, 0, 1, 1)
 
-        self.comboBox_3 = QComboBox(self.tab_2)
-        self.comboBox_3.setObjectName(u"comboBox_3")
-        sizePolicy1.setHeightForWidth(self.comboBox_3.sizePolicy().hasHeightForWidth())
-        self.comboBox_3.setSizePolicy(sizePolicy1)
-        self.comboBox_3.setMinimumSize(QSize(150, 0))
+        self.extrbox3d = QComboBox(self.tab_2)
+        self.extrbox3d.setObjectName(u"extrbox3d")
+        sizePolicy1.setHeightForWidth(self.extrbox3d.sizePolicy().hasHeightForWidth())
+        self.extrbox3d.setSizePolicy(sizePolicy1)
+        self.extrbox3d.setMinimumSize(QSize(150, 0))
 
-        self.gridLayout_6.addWidget(self.comboBox_3, 0, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.extrbox3d, 0, 1, 1, 1)
 
         self.label_16 = QLabel(self.tab_2)
         self.label_16.setObjectName(u"label_16")
@@ -693,13 +700,13 @@ class Ui_main_window(object):
 
         self.gridLayout_6.addWidget(self.lineEdit_12, 2, 2, 1, 1)
 
-        self.comboBox_4 = QComboBox(self.tab_2)
-        self.comboBox_4.setObjectName(u"comboBox_4")
-        sizePolicy1.setHeightForWidth(self.comboBox_4.sizePolicy().hasHeightForWidth())
-        self.comboBox_4.setSizePolicy(sizePolicy1)
-        self.comboBox_4.setMinimumSize(QSize(150, 0))
+        self.cat3d = QComboBox(self.tab_2)
+        self.cat3d.setObjectName(u"cat3d")
+        sizePolicy1.setHeightForWidth(self.cat3d.sizePolicy().hasHeightForWidth())
+        self.cat3d.setSizePolicy(sizePolicy1)
+        self.cat3d.setMinimumSize(QSize(150, 0))
 
-        self.gridLayout_6.addWidget(self.comboBox_4, 1, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.cat3d, 1, 1, 1, 1)
 
         self.horizontalSlider_5 = QRangeSlider(self.tab_2)
         self.horizontalSlider_5.setObjectName(u"horizontalSlider_5")
@@ -753,17 +760,19 @@ class Ui_main_window(object):
 
         self.view3d = QPushButton(self.tab_2)
         self.view3d.setObjectName(u"view3d")
+        self.view3d.setEnabled(False)
         self.view3d.setMinimumSize(QSize(90, 25))
         self.view3d.setMaximumSize(QSize(90, 16777215))
 
         self.horizontalLayout_4.addWidget(self.view3d)
 
-        self.pushButton_6 = QPushButton(self.tab_2)
-        self.pushButton_6.setObjectName(u"pushButton_6")
-        self.pushButton_6.setMinimumSize(QSize(90, 25))
-        self.pushButton_6.setMaximumSize(QSize(90, 16777215))
+        self.gif3d = QPushButton(self.tab_2)
+        self.gif3d.setObjectName(u"gif3d")
+        self.gif3d.setEnabled(False)
+        self.gif3d.setMinimumSize(QSize(90, 25))
+        self.gif3d.setMaximumSize(QSize(90, 16777215))
 
-        self.horizontalLayout_4.addWidget(self.pushButton_6)
+        self.horizontalLayout_4.addWidget(self.gif3d)
 
         self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -772,10 +781,10 @@ class Ui_main_window(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_4)
 
-        self.graphicsView_2 = QGraphicsView(self.tab_2)
-        self.graphicsView_2.setObjectName(u"graphicsView_2")
+        self.graphlayout3d = QHBoxLayout()
+        self.graphlayout3d.setObjectName(u"graphlayout3d")
 
-        self.verticalLayout_3.addWidget(self.graphicsView_2)
+        self.verticalLayout_3.addLayout(self.graphlayout3d)
 
         self.tabWidget.addTab(self.tab_2, "")
 
@@ -784,7 +793,7 @@ class Ui_main_window(object):
         main_window.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(main_window)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1037, 22))
+        self.menubar.setGeometry(QRect(0, 0, 942, 22))
         self.menuArchivo = QMenu(self.menubar)
         self.menuArchivo.setObjectName(u"menuArchivo")
         self.menuVer = QMenu(self.menubar)
@@ -807,7 +816,7 @@ class Ui_main_window(object):
         self.menubar.addAction(self.menuAyud.menuAction())
         self.menuArchivo.addAction(self.bmMenubar)
         self.menuArchivo.addAction(self.dpMenubar)
-        self.menuArchivo.addAction(self.actionImportar_Plan_de_Extracci_n)
+        self.menuArchivo.addAction(self.extMenubar)
         self.menuArchivo.addSeparator()
         self.menuArchivo.addAction(self.salida)
         self.menuArchivo.addSeparator()
@@ -820,7 +829,7 @@ class Ui_main_window(object):
 
         self.retranslateUi(main_window)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(main_window)
@@ -830,7 +839,7 @@ class Ui_main_window(object):
         main_window.setWindowTitle(QCoreApplication.translate("main_window", u"UGMM - Gravity Flow Module", None))
         self.bmMenubar.setText(QCoreApplication.translate("main_window", u"Importar Modelo de Bloques", None))
         self.dpMenubar.setText(QCoreApplication.translate("main_window", u"Importar Puntos de Extracci\u00f3n", None))
-        self.actionImportar_Plan_de_Extracci_n.setText(QCoreApplication.translate("main_window", u"Importar Plan de Extracci\u00f3n", None))
+        self.extMenubar.setText(QCoreApplication.translate("main_window", u"Importar Plan de Extracci\u00f3n", None))
         self.salida.setText(QCoreApplication.translate("main_window", u"Seleccionar Ruta de Salida", None))
         self.result_folders.setText(QCoreApplication.translate("main_window", u"Ver Carpeta de Simulaciones", None))
         self.viewer.setText(QCoreApplication.translate("main_window", u"Visualizador de Simulaci\u00f3n", None))
@@ -839,7 +848,7 @@ class Ui_main_window(object):
         self.actionManual_de_Usuario.setText(QCoreApplication.translate("main_window", u"Manual de Usuario", None))
         self.actionAcerca_de.setText(QCoreApplication.translate("main_window", u"Acerca de", None))
         self.dpImportButton.setText(QCoreApplication.translate("main_window", u"...", None))
-        self.toolButton_3.setText(QCoreApplication.translate("main_window", u"...", None))
+        self.extImportButton.setText(QCoreApplication.translate("main_window", u"...", None))
         self.bmImportButton.setText(QCoreApplication.translate("main_window", u"...", None))
         self.label_2.setText(QCoreApplication.translate("main_window", u"Modelo de bloques", None))
         self.label_4.setText(QCoreApplication.translate("main_window", u"Plan de extracci\u00f3n", None))
@@ -850,11 +859,12 @@ class Ui_main_window(object):
         self.label_6.setText(QCoreApplication.translate("main_window", u"Par\u00e1metros del modelo:", None))
         self.label_7.setText(QCoreApplication.translate("main_window", u"Constante N", None))
         self.label_8.setText(QCoreApplication.translate("main_window", u"Constante MVC", None))
-        self.label_12.setText(QCoreApplication.translate("main_window", u"Simulaci\u00f3n:", None))
         self.stress_model.setText(QCoreApplication.translate("main_window", u"Modelo de Esfuerzo", None))
         self.simButton.setText(QCoreApplication.translate("main_window", u"Simular", None))
         self.stop.setText(QCoreApplication.translate("main_window", u"Detener", None))
         self.frag_model.setText(QCoreApplication.translate("main_window", u"Modelo de Fragmentaci\u00f3n", None))
+        self.label_12.setText(QCoreApplication.translate("main_window", u"Simulaci\u00f3n:", None))
+        self.sim_status.setText("")
         self.label_13.setText(QCoreApplication.translate("main_window", u"Periodo", None))
         self.label_14.setText(QCoreApplication.translate("main_window", u"Categor\u00eda", None))
         self.graphx.setText(QCoreApplication.translate("main_window", u"Eje X", None))
@@ -869,7 +879,7 @@ class Ui_main_window(object):
         self.label_18.setText(QCoreApplication.translate("main_window", u"Eje Y", None))
         self.label_19.setText(QCoreApplication.translate("main_window", u"Eje Z", None))
         self.view3d.setText(QCoreApplication.translate("main_window", u"Graficar", None))
-        self.pushButton_6.setText(QCoreApplication.translate("main_window", u"Animaci\u00f3n", None))
+        self.gif3d.setText(QCoreApplication.translate("main_window", u"Animaci\u00f3n", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("main_window", u"Vista 3D", None))
         self.menuArchivo.setTitle(QCoreApplication.translate("main_window", u"Archivo", None))
         self.menuVer.setTitle(QCoreApplication.translate("main_window", u"Ver", None))
