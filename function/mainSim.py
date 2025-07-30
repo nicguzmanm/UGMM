@@ -8,9 +8,6 @@ from function.flowmarkI import Flow # Ok
 from function.reblock_1 import Generate # Ok
 from function.orden_modelo import orden
 
-
-import plotly.express as px
-import webbrowser
 import os
 import time
 
@@ -54,6 +51,8 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         error = 0
         """ Revisa si existe la carpetra report y guarda la carpeta donde estara el output de la simulacion """
         if not os.path.exists(f'{ruta}\\{fold}'):
+            print('ruta',ruta)
+            print('fold',fold)
             os.makedirs(f'{ruta}\\{fold}')
 
         # Nombre base para las subcarpetas
@@ -155,10 +154,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         
         # Se definen los periodos que se guardaran
         period_save = [None] * final_period
-        
-        # Indices que se usan para guardar informacion
-        num_iter = 0
-        num_iter_saved = 0
+
         # Variables retornadas de la simulacion, que son mostradas en la pestaña de resultados
         if stress_activate:
             esf=[None] * int(final_period) # Variable retornada (Esfuerzos por periodo)
@@ -168,9 +164,31 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         mean_grade = [0] * int(final_period) # Variable retornada (Ley media por periodo)
         tonnage = [0] * int(final_period) # Variable retornada (Tonelada por periodo)
         fine_metal = [0] * int(final_period)
+        ton_total = 0
+        for cod_px in tonelaje_objetivo_por_periodo.values():
+            ton_total += int(sum(cod_px.values()))
+        acumulado_por_P = {}
 
-        inc_progress = ( sum(tonelaje_objetivo_por_periodo) ) * final_period/4.4
-        print(sum(tonelaje_objetivo_por_periodo)/inc_progress)
+        for punto in tonelaje_objetivo_por_periodo.values():
+            for periodo, valor in punto.items():
+                acumulado_por_P[periodo] = acumulado_por_P.get(periodo, 0) + valor
+
+        # Contar cuántos 'P' tienen algún valor > 0
+        puntos_activos = [p for p, v in acumulado_por_P.items() if v > 0]
+        ton_total += 105 * len(puntos_activos) * final_period
+        ton_actual = 0
+        progress = [0] * final_period
+        it = 0
+        progress[it] += 15
+        #----------------------------------------------------------------------------------------------------------------------------------
+        progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
+        if stop_requested:
+            return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+        #----------------------------------------------------------------------------------------------------------------------------------
+
+        
+        
+
         
         """ Inicio de simulación """
         for i in range(num_simulations):
@@ -198,13 +216,14 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                     
                     # Bucle para actualizar el perÃ­odo:
                     while period <= final_period:
+                        
                         t_inicio_periodo = time.time()
                         tonelaje_por_punto_objetivo = tonelaje_objetivo_por_periodo.get(period, {})
                         tonelaje_por_punto = {codigo: 0 for codigo in drawpoints_df['codigo']}
                         tonelaje_por_id = {}
-
+                        progress[it] += 15
                         #----------------------------------------------------------------------------------------------------------------------------------
-                        progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                        progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                         if stop_requested:
                             return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
                         #----------------------------------------------------------------------------------------------------------------------------------
@@ -247,8 +266,9 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             # # CÃ¡lculo de la fragmentaciÃ³n:
                             # sizem = fragmentation(size, fu, vload)
                             # frag50 = (sizem[3] * 10) / (max_y - min_y)
+                            progress[it] += 15
                             #----------------------------------------------------------------------------------------------------------------------------------
-                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
                                 return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
@@ -291,8 +311,9 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             dens_sum = defaultdict(float)
                             for pos, idv in zip(indices_ex, ids_ex):
                                 dens_sum[idv] += dens_arr[pos] * vol
+                            progress[it] += 15
                             #----------------------------------------------------------------------------------------------------------------------------------
-                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
                                 return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
@@ -351,10 +372,11 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             
                             # ids de los bloques reciÃ©n extraÃ­dos
                             ids_arr = np.array(bloques_id_nuevos, dtype=np.int64)
+                            progress[it] += 15
                             #----------------------------------------------------------------------------------------------------------------------------------
-                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
-                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
                             # Calcula tonelaje, fines y ley media de cada ID en JIT
                             tons_arr, fines_arr, ley_arr = compute_tonnage_and_fines(flow_block_model, ids_arr, block_volume)
@@ -383,10 +405,11 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             #print(f"diccionario tiempo {extractions}: {t_dic - t_inicio_extraccion:.2f} segundos")
                             if 'primeros_cambios' not in locals():
                                 primeros_cambios = {}
+                            progress[it] += 15
                             #----------------------------------------------------------------------------------------------------------------------------------
-                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
-                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
                             for pos in indices_ex:
                                 idv = int(flow_block_model[pos, 5])
@@ -415,10 +438,11 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             
                                 # Coordenadas del bloque
                                 coord = np.array([x_b, y_b, z_b])
+                                progress[it] += 15
                                 #----------------------------------------------------------------------------------------------------------------------------------
-                                progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                                progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                                 if stop_requested:
-                                    return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                    return esf, tonnage, mean_grade, simfolder, error, fine_metal
                                 #----------------------------------------------------------------------------------------------------------------------------------
 
                                 # Buscar el punto de extracción más cercano
@@ -443,17 +467,24 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                                 # Tonelaje acumulado por punto
                                 tonelaje = dens_sum.get(idv, 0)
                                 tonelaje_por_punto[punto] = tonelaje_por_punto.get(punto, 0) + tonelaje
+                            progress[it] += 15
                             #----------------------------------------------------------------------------------------------------------------------------------
-                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
-                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
 
                             t_bloques_nuevos = time.time()
                             #print(f"index tiempo {extractions}: {t_bloques_nuevos - t_inicio_extraccion:.2f} segundos")
+                            
                             print("Tonelaje por punto de extraccion:")
-                            for punto, t in tonelaje_por_punto.items():#############
-                                print(f"  Punto {punto}: {t:.2f} t")####################
+                            ton_actual = 0
+                            for punto, t in tonelaje_por_punto.items():
+                                ton_actual += float(t)
+                                print(f"  Punto {punto}: {t:.2f} t")
+                            
+                            progress[it] = ton_actual
+                            
                             # Comprobar si continÃºa la extracciÃ³n:
                             extraccion_completa = all(
                                 tonelaje_por_punto.get(codigo, 0) >= tonelaje_por_punto_objetivo.get(codigo, float('inf'))
@@ -461,9 +492,9 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             )
                             t_fin_extraccion_punto = time.time()
                             #----------------------------------------------------------------------------------------------------------------------------------
-                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                            progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
-                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
                             #print(f"Tiempo paso de extraccion {extractions}: {t_fin_extraccion_punto - t_inicio_extraccion:.2f} s")
                             if extraccion_completa:
@@ -475,7 +506,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                                 # flow_block_model[flow_block_model[:, 11] > 0, 3] = 1
                                 # Exportar el modelo actualizado:
                                 col_names = 'x z y state d50 id dist distacum grade dens mi period'
-                                np.savetxt(f'{simfolder}/modelo_actualizado_periodo_{period}.txt', flow_block_model, header=col_names, comments='')
+                                np.savetxt(f'{simfolder}/modelo_actualizado_periodo_{period}.csv', flow_block_model,delimiter=';', header=col_names, comments='')
                                 # ğ Exportar a Excel las primeras apariciones:
                                 df_cambios = pd.DataFrame.from_dict(primeros_cambios, orient="index")
                                 df_cambios.reset_index(inplace=True)
@@ -489,10 +520,12 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                                     )
                                     idx_min = distancias.idxmin()
                                     return drawpoints_df.loc[idx_min, 'codigo']
+                                
+                                progress[it] += 15
                                 #----------------------------------------------------------------------------------------------------------------------------------
-                                progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(tonelaje_objetivo_por_periodo)/inc_progress, update_progress, stop_sim)
+                                progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                                 if stop_requested:
-                                    return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                    return esf, tonnage, mean_grade, simfolder, error, fine_metal
                                 #----------------------------------------------------------------------------------------------------------------------------------
 
                                 # Aplicar la funciÃ³n para asignar el punto de extracciÃ³n
@@ -504,9 +537,12 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                                 # ğ Final: Guardar CSV con la nueva columna
                                 df_cambios.to_csv(f"{simfolder}/bloques_extraidos_periodo_{period}.csv", sep=';', index=False)
                                 break
+                            else:
+                                ton_actual = 0
                             # Actualizar el modelo de bloques:
                             block_model = flow_block_model
                         
+                        it += 1
                         t_fin_periodo = time.time()
                         print(f"Tiempo para el peri­odo {period}: {t_fin_periodo - t_inicio_periodo:.2f} segundos")
 
@@ -572,14 +608,14 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                 # Exportar a Excel
                 df_bloques_agregados = pd.DataFrame(resultados_agregados)
                 df_bloques_agregados.to_excel(f"{simfolder}/modelo_diluido.xlsx", index=False)
-            return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+            return esf, tonnage, mean_grade, simfolder, error, fine_metal
     except Exception as e:
         traceback.print_exc()
         error = 1
-        return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+        return esf, tonnage, mean_grade, simfolder, error, fine_metal
 
-def update_progress_check_stopped(progress_value, inc_progress, update_progress, stop_sim):
-    progress_value = inc_progress * 100
+def update_progress_check_stopped(progress_value, ton_total, update_progress, stop_sim):
+    progress_value = ton_total * 100
     update_progress(int(progress_value))
 
     # Verificar si se debe detener la simulación

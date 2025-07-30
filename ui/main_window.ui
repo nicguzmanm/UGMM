@@ -473,7 +473,11 @@ QPushButton:disabled {
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLineEdit" name="inputMVC"/>
+          <widget class="QLineEdit" name="inputMVC">
+           <property name="text">
+            <string>3</string>
+           </property>
+          </widget>
          </item>
          <item row="2" column="0">
           <widget class="QLabel" name="label_8">
@@ -489,7 +493,11 @@ QPushButton:disabled {
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLineEdit" name="inputN"/>
+          <widget class="QLineEdit" name="inputN">
+           <property name="text">
+            <string>2</string>
+           </property>
+          </widget>
          </item>
         </layout>
        </widget>
@@ -651,7 +659,7 @@ QPushButton:disabled {
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -711,6 +719,9 @@ QPushButton:disabled {
           </item>
           <item row="2" column="1">
            <widget class="QSlider" name="cortex">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -751,6 +762,9 @@ QPushButton:disabled {
           </item>
           <item row="3" column="1">
            <widget class="QSlider" name="cortey">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -775,6 +789,9 @@ QPushButton:disabled {
           </item>
           <item row="4" column="1">
            <widget class="QSlider" name="cortez">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -928,6 +945,9 @@ QPushButton:disabled {
           </item>
           <item row="2" column="1">
            <widget class="QRangeSlider" name="horizontalSlider_4">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -961,6 +981,9 @@ QPushButton:disabled {
           </item>
           <item row="3" column="1">
            <widget class="QRangeSlider" name="horizontalSlider_5">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -978,6 +1001,9 @@ QPushButton:disabled {
           </item>
           <item row="4" column="1">
            <widget class="QRangeSlider" name="horizontalSlider_6">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>

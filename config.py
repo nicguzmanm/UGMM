@@ -10,6 +10,7 @@ class Configuration(QtWidgets.QDialog):
     def __init__(self, col1_2d, col2_2d, col1_3d, col2_3d, size2d, size3d):
         super().__init__()
 
+        
         uic.loadUi('ui\\Configuracion.ui', self)
         self.setWindowIcon(QIcon('asset\\dark_UGMM.png'))
         self.setWindowTitle('Resultados de Simulación')

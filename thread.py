@@ -10,7 +10,7 @@ class SimulationThread(QThread):
     """
 
     progress_updated = pyqtSignal(int)
-    simulation_finished = pyqtSignal(object, object, object, object, object, object, object) # Salidas
+    simulation_finished = pyqtSignal(object, object, object, object, object, object) # Salidas
     simulation_error = pyqtSignal(str)
     simulation_stop = pyqtSignal(bool)
 
@@ -37,7 +37,7 @@ class SimulationThread(QThread):
         try:
             # Ejecutar la simulación
 
-            self.stress, self.extract, self.ton, self.grade, self.subfolder, self.error, self.fine_metal = sim(
+            self.stress, self.ton, self.grade, self.subfolder, self.error, self.fine_metal = sim(
                 int(self.n),
                 int(self.mvc),
                 self.extfile,
@@ -52,7 +52,7 @@ class SimulationThread(QThread):
 
             # Emitir los resultados
             
-            self.simulation_finished.emit(self.stress, self.extract, self.ton, self.grade, self.subfolder, self.error, self.fine_metal) # Salidas
+            self.simulation_finished.emit(self.stress, self.ton, self.grade, self.subfolder, self.error, self.fine_metal) # Salidas
         except Exception as e:
             self.simulation_error.emit(str(e))
             traceback.print_exc()
