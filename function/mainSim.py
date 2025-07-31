@@ -142,9 +142,15 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
 
         # Leer tonelaje objetivo desde archivo
         df_periodos = pd.read_csv(ext, index_col=0)
-        df_periodos = df_periodos.loc[:, ~df_periodos.columns.astype(str).str.contains('^Unnamed')]
-        df_periodos = df_periodos.dropna(how='all')
 
+        df_periodos.columns = df_periodos.columns.str.replace(r';+', '', regex=True).str.strip()
+
+        df_periodos = df_periodos.replace(r';+', '', regex=True)
+
+        for col in df_periodos.columns:
+            df_periodos[col] = pd.to_numeric(df_periodos[col], errors='ignore')
+
+        print(df_periodos)
         final_period = df_periodos.shape[1]
         tonelaje_objetivo_por_periodo = {
             int(periodo): df_periodos[periodo].dropna().to_dict()
@@ -503,8 +509,15 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                                 # np.savetxt(f'bloques_extraidos_periodo{period}.txt', filtered_blocks, header=col_names, comments='')
                                 # flow_block_model[flow_block_model[:, 11] > 0, 3] = 1
                                 # Exportar el modelo actualizado:
-                                col_names = 'x z y state d50 id dist distacum grade dens mi period'
-                                np.savetxt(f'{simfolder}/modelo_actualizado_periodo_{period}.csv', flow_block_model,delimiter=';', header=col_names, comments='')
+                                col_names = 'x z y state d50 id dist distacum grade dens mi period'.split()
+
+                                # Supongamos que `flow_block_model` es una lista de listas o un array compatible
+                                # Crea un DataFrame con esos datos y nombres de columnas
+                                df = pd.DataFrame(flow_block_model, columns=col_names)
+
+                                # Guarda el DataFrame como CSV con punto y coma como separador
+                                df.to_csv(f'{simfolder}/modelo_actualizado_periodo_{period}.csv', sep=';', index=False)
+                                
                                 # ğ Exportar a Excel las primeras apariciones:
                                 df_cambios = pd.DataFrame.from_dict(primeros_cambios, orient="index")
                                 df_cambios.reset_index(inplace=True)

@@ -256,7 +256,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.bmfile = ruta
             self.bmName.setText(f'{os.path.basename(self.bmfile)}')
             self.bmpreceed = self.bmfile
-            print(self.bmpreceed)
         
     def importdp(self):
 
@@ -296,14 +295,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def corrector(self): 
         try:
             # Desktop
-            self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
-            self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
-            self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
+            #self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
+            #self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
+            #self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
             self.num_period = 2
             # Notebook
-            #self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
-            #self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
-            #self.extpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/periodo1.csv"
+            self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
+            self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
+            self.extpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/periodo1.csv"
 
             if not self.dppreceed or not self.bmpreceed or not self.extpreceed:
                 QtWidgets.QMessageBox.warning(
@@ -482,7 +481,11 @@ class MainWindow(QtWidgets.QMainWindow):
         se vera la cota en que se encuentra la coordenada a realizar el corte
         """
         try:
-            self.bmodel=pd.read_csv(rf'{self.simfolder}\\modelo_actualizado_periodo_{self.extrbox.currentText()}.csv')
+            self.bmodel = pd.read_csv(
+                rf'{self.simfolder}\\modelo_actualizado_periodo_{self.extrbox.currentText()}.csv',
+                sep=';'
+            )
+            self.grapher.setEnabled(True)
         except:
             self.cortex.setEnabled(False)
             self.cortey.setEnabled(False)
@@ -494,41 +497,40 @@ class MainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.critical(self, 'Error', 'La carpeta donde se guardó la simulación reciente ha sido eliminada. Por favor, vuelve a simular para poder visualizar los resultados.')
             
             return
-        self.checkboxes = [self.graphx, self.graphy, self.graphz]
-        self.value_axe=[checkbox.isChecked() for checkbox in self.checkboxes]
-        num_check = sum(self.value_axe)
-        if num_check != 2:
-            QtWidgets.QMessageBox.warning(self, 'Alerta', 'Seleccionar solo dos ejes de coordenadas a graficar.')
-            return
-        if not self.extrbox.currentText():
-            QtWidgets.QMessageBox.warning(self, 'Alerta', 'Seleccionar la extracción a graficar.')
-            return
-            # Se realizara el corte en el eje X
-        self.cortex.setMinimum(int(round(min(self.bmodel.iloc[:,0]),0)))
-        self.cortex.setMaximum(int(round(max(self.bmodel.iloc[:,0]),0)))
+        
+
+        # Se realizara el corte en el eje X
+        self.mincutx = int(round(min(self.bmodel.iloc[:,0]),0))
+        self.maxcutx = int(round(max(self.bmodel.iloc[:,0]),0))
+        self.cortex.setMinimum(self.mincutx)
+        self.cortex.setMaximum(self.maxcutx)
 
         # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
         # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
         self.cortex.setSingleStep(self.dcell[0])
-        self.coordstep = self.dcell[0]
+        self.coordstepx = self.dcell[0]
         
         # Se realizara el corte en el eje Y
-        self.cortey.setMinimum(int(round(min(self.bmodel.iloc[:,1]),0)))
-        self.cortey.setMaximum(int(round(max(self.bmodel.iloc[:,1]),0)))
+        self.mincuty = int(round(min(self.bmodel.iloc[:,1]),0))
+        self.maxcuty = int(round(max(self.bmodel.iloc[:,1]),0))
+        self.cortey.setMinimum(self.mincuty)
+        self.cortey.setMaximum(self.maxcuty)
 
         # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
         # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
         self.cortey.setSingleStep(self.dcell[1])
-        self.coordstep = self.dcell[1]
+        self.coordstepy = self.dcell[1]
 
         # Se realizara el corte en el eje Z
-        self.cortez.setMinimum(int(round(min(self.bmodel.iloc[:,2]),0)))
-        self.cortez.setMaximum(int(round(max(self.bmodel.iloc[:,2]),0)))
+        self.mincutz = int(round(min(self.bmodel.iloc[:,2]),0))
+        self.maxcutz = int(round(max(self.bmodel.iloc[:,2]),0))
+        self.cortez.setMinimum(self.mincutz)
+        self.cortez.setMaximum(self.maxcutz)
 
         # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
         # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
         self.cortez.setSingleStep(self.dcell[2])
-        self.coordstep = self.dcell[2]
+        self.coordstepz = self.dcell[2]
 
     def actualizar_sliders(self, state, sigma):
         """ Dependiendo de el check box marcado se activara el eje faltante"""
@@ -565,7 +567,6 @@ class MainWindow(QtWidgets.QMainWindow):
             elif not z:
                 self.cortez.setEnabled(True)
 
-        print('se actualizo', x, y, z, ' = ', sum([x, y, z]))
 
     def update_valuex(self):
         """ Obtener el valor del slider y actualizar el label """
@@ -573,8 +574,8 @@ class MainWindow(QtWidgets.QMainWindow):
     
         # Ajustar el valor al multiplo más cercano el singleStep
         # Segun la coordenada que se quiera cortar
-        if value % self.coordstep != 0:
-            value = value - (value % self.coordstep)
+        if value % self.coordstepx != 0:
+            value = value - (value % self.coordstepx)
         
         # Establecer el valor actualizado
         self.cortex.setValue(value) 
@@ -588,8 +589,8 @@ class MainWindow(QtWidgets.QMainWindow):
     
         # Ajustar el valor al multiplo más cercano el singleStep
         # Segun la coordenada que se quiera cortar
-        if value % self.coordstep != 0:
-            value = value - (value % self.coordstep)
+        if value % self.coordstepy != 0:
+            value = value - (value % self.coordstepy)
         
         # Establecer el valor actualizado
         self.cortey.setValue(value) 
@@ -603,8 +604,8 @@ class MainWindow(QtWidgets.QMainWindow):
     
         # Ajustar el valor al multiplo más cercano el singleStep
         # Segun la coordenada que se quiera cortar
-        if value % self.coordstep != 0:
-            value = value - (value % self.coordstep)
+        if value % self.coordstepz != 0:
+            value = value - (value % self.coordstepz)
         
         # Establecer el valor actualizado
         self.cortez.setValue(value) 
@@ -614,29 +615,69 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def select_graph(self):
         # Configurar el lineEdit del corte para que no se salga de la cota
+        checkboxes = [self.graphx, self.graphy, self.graphz]
+        value_axe=[checkbox.isChecked() for checkbox in checkboxes]
         
+        num_check = sum(value_axe)
+        if num_check != 2:
+            QtWidgets.QMessageBox.warning(self, 'Alerta', 'Seleccionar solo dos ejes de coordenadas a graficar.')
+            return
+        if not self.extrbox.currentText():
+            QtWidgets.QMessageBox.warning(self, 'Alerta', 'Seleccionar la extracción a graficar.')
+            return
         try:
-            if self.update_axe.text() == None or self.update_axe.text() == '':
-                QtWidgets.QMessageBox.warning(
-                self, 'Error', 'Porfavor, seleccionar una coordenada para continuar.'
-                )
-                return
-            update_axe = int(self.update_axe.text()) # No borrar, fuerza el error si esque se llegara a tener un numero decimal
-            
+            if not value_axe[0]:
+                if self.update_axex.text() == None or self.update_axex.text() == '':
+                    QtWidgets.QMessageBox.warning(
+                    self, 'Error', 'Porfavor, seleccionar una coordenada para continuar.'
+                    )
+                    return
+                update_axex = int(self.update_axex.text()) # No borrar, fuerza el error si esque se llegara a tener un numero decimal
+                if  int(self.update_axex.text())<float(self.mincutx) or int(self.update_axex.text())>float(self.maxcutx):
+                    QtWidgets.QMessageBox.warning(
+                            self, 'Error', 'Coordenada se encuentra fuera de rango.'
+                        )
+                    return
+                if int(self.update_axex.text()) % self.coordstepx != 0:
+                    self.update_axex.setText(str(int(self.update_axex.text())+1))
+            elif not value_axe[1]:
+                if self.update_axey.text() == None or self.update_axey.text() == '':
+                    QtWidgets.QMessageBox.warning(
+                    self, 'Error', 'Porfavor, seleccionar una coordenada para continuar.'
+                    )
+                    return
+                update_axey = int(self.update_axey.text()) # No borrar, fuerza el error si esque se llegara a tener un numero decimal
+                if  int(self.update_axey.text())<float(self.mincuty) or int(self.update_axey.text())>float(self.maxcuty):
+                    QtWidgets.QMessageBox.warning(
+                            self, 'Error', 'Coordenada se encuentra fuera de rango.'
+                        )
+                    return
+                if int(self.update_axey.text()) % self.coordstepy != 0:
+                    self.update_axey.setText(str(int(self.update_axey.text())+1))
+            elif not value_axe[2]:
+                if self.update_axez.text() == None or self.update_axez.text() == '':
+                    QtWidgets.QMessageBox.warning(
+                    self, 'Error', 'Porfavor, seleccionar una coordenada para continuar.'
+                    )
+                    return
+                update_axez = int(self.update_axez.text()) # No borrar, fuerza el error si esque se llegara a tener un numero decimal
+                if  int(self.update_axez.text())<float(self.mincutz) or int(self.update_axez.text())>float(self.maxcutz):
+                    QtWidgets.QMessageBox.warning(
+                            self, 'Error', 'Coordenada se encuentra fuera de rango.'
+                        )
+                    return
+                if int(self.update_axez.text()) % self.coordstepz != 0:
+                    self.update_axez.setText(str(int(self.update_axez.text())+1))
         except ValueError:
             QtWidgets.QMessageBox.warning(
                 self, 'Error', 'Coordenada debe ser numero entero para continuar.'
             )
-        if  int(self.update_axe.text())<float(self.mincut.text()) or int(self.update_axe.text())>float(self.maxcut.text()):
-            QtWidgets.QMessageBox.warning(
-                    self, 'Error', 'Coordenada se encuentra fuera de rango.'
-                )
-            return
-        if int(self.update_axe.text()) % 2 != 0:
-            self.update_axe.setText(str(int(self.update_axe.text())+1))
         
         try:
-            self.bmodel = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_{self.extrbox.currentText()}_{os.path.basename(self.simfolder)}.csv')
+            self.bmodel = pd.read_csv(
+                rf'{self.simfolder}\\modelo_actualizado_periodo_{self.extrbox.currentText()}.csv',
+                sep=';'
+            )
         except Exception:
             QtWidgets.QMessageBox.critical(
                 self,'Error','La carpeta de la simulación reciente ha sido eliminada. Ejecute una nueva simulación para visualizar los resultados.'
@@ -647,9 +688,9 @@ class MainWindow(QtWidgets.QMainWindow):
         
         self.column_color = self.cat.currentIndex()
 
-        if self.value_axe[0] == False:    
+        if value_axe[0] == False:    
             # Graficar Y vs Z    
-            self.cut_filter = self.bmodel[self.bmodel.iloc[:,0] == int(self.update_axe.text())] # Filtra en X
+            self.cut_filter = self.bmodel[self.bmodel.iloc[:,0] == int(self.update_axex.text())] # Filtra en X
             self.figure = self.graficar(self.cut_filter.iloc[:,1],
                  self.cut_filter.iloc[:,2],
                  self.cut_filter.iloc[:,self.column_color],
@@ -658,9 +699,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.figure.tight_layout()
             self.canvas.draw()
             
-        elif self.value_axe[1] == False:    
+        elif value_axe[1] == False:    
             # Graficar Y vs Z
-            self.cut_filter = self.bmodel[self.bmodel.iloc[:,1] == int(self.update_axe.text())] # Filtra en Y
+            self.cut_filter = self.bmodel[self.bmodel.iloc[:,1] == int(self.update_axey.text())] # Filtra en Y
             self.figure = self.graficar(self.cut_filter.iloc[:,0],
                  self.cut_filter.iloc[:,2],
                  self.cut_filter.iloc[:,self.column_color],
@@ -670,7 +711,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.canvas.draw()
         else:                               
             # Graficar X vs Y
-            self.cut_filter = self.bmodel[self.bmodel.iloc[:,2] == int(self.update_axe.text())] # Filtra en Z
+            self.cut_filter = self.bmodel[self.bmodel.iloc[:,2] == int(self.update_axez.text())] # Filtra en Z
             self.figure = self.graficar(self.cut_filter.iloc[:,0],
                  self.cut_filter.iloc[:,1],
                  self.cut_filter.iloc[:,self.column_color],
@@ -695,25 +736,26 @@ class MainWindow(QtWidgets.QMainWindow):
         norm = mcolors.Normalize(vmin=min(color), vmax=max(color))  
         cmap = LinearSegmentedColormap.from_list("custom_cmap", [self.col1_2d, self.col2_2d])
         colors = cmap(norm(color))
+        checkboxes = [self.graphx, self.graphy, self.graphz]
+        value_axe=[checkbox.isChecked() for checkbox in checkboxes]
 
-
-        if self.value_axe[0] == False:
+        if value_axe[0] == False:
             # Graficar Y vs Z
             ax = self.figure.add_subplot(111)
             ax.scatter(x, y, c=colors, marker='s', s = self.size2d)
             cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
             cbar.set_label(f'{self.item[self.column_color]}') # Leyenda
-            ax.set_title(f"Periodo {ex} (Corte X = {int(self.update_axe.text())})")
+            ax.set_title(f"Periodo {ex} (Corte X = {int(self.update_axex.text())})")
             ax.set_xlabel("Eje Y")
             ax.set_ylabel("Eje Z")
 
-        elif self.value_axe[1] == False:
+        elif value_axe[1] == False:
             # Graficar X vs Z
             ax = self.figure.add_subplot(111)
             ax.scatter(x, y, c=colors, marker='s', s = self.size2d)
             cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
             cbar.set_label(f'{self.item[self.column_color]}')
-            ax.set_title(f"Periodo {ex} (Corte Y = {int(self.update_axe.text())})")
+            ax.set_title(f"Periodo {ex} (Corte Y = {int(self.update_axey.text())})")
             ax.set_xlabel("Eje X")
             ax.set_ylabel("Eje Z")
 
@@ -723,65 +765,96 @@ class MainWindow(QtWidgets.QMainWindow):
             ax.scatter(x, y, c=colors, marker='s', s=self.size2d)
             cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
             cbar.set_label(f'{self.item[self.column_color]}')
-            ax.set_title(f"Periodo {ex} (Corte Z = {int(self.update_axe.text())})")
+            ax.set_title(f"Periodo {ex} (Corte Z = {int(self.update_axez.text())})")
             ax.set_xlabel("Eje X")
             ax.set_ylabel("Eje Y")
         return self.figure
         
     def giftear(self):
+        checkboxes = [self.graphx, self.graphy, self.graphz]
+        value_axe=[checkbox.isChecked() for checkbox in checkboxes]
+
         image = [None] * int(self.num_period)
         i=0
-        if self.value_axe[0] == False:  
+        if value_axe[0] == False:  
             
             for value in range(self.num_period):
                 # Graficar Y vs Z
                 self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_periodo_{value}.txt')    
-                self.cut_filter = self.bmodel[self.bmodel.iloc[:,0] == int(self.update_axe.text())] # Filtra en X
+                self.cut_filter = self.bmodel[self.bmodel.iloc[:,0] == int(self.update_axex.text())] # Filtra en X
                 self.figif = self.graficar(self.cut_filter.iloc[:,1],
                     self.cut_filter.iloc[:,2],
                     self.cut_filter.iloc[:,self.column_color],
                     value)
-                image[i] = f'ext{value}_cut{self.update_axe.text()}.png'
-                self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axe.text()}.png',format='png')
+                image[i] = f'ext{value}_cut{self.update_axex.text()}.png'
+                self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axex.text()}.png',format='png')
                 i+=1
-        elif self.value_axe[1] == False:    
+            frames = [Image.open(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\{img}') for img in image]
+            frames[0].save(
+                f"{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\gif_ext{int(self.num_period)}_cut{self.update_axex.text()}.gif",
+                save_all=True,
+                append_images=frames[1:],
+                optimize=True,
+                duration=500,  # Duración entre cuadros (ms)
+                loop=0         # 0 para bucle infinito
+            )
+            for img in image: # Borrar fotos de la grafica
+                os.remove(f'{self.simfolder}\\{img}')
+            gif_dialog = GifDialog(f"{self.simfolder}\\gif_ext{int(self.num_period)}_cut{self.update_axex.text()}.gif")
+            gif_dialog.set_save_path(f"{self.fold}\\{os.path.basename(self.simfolder)}")
+            gif_dialog.exec()
+        elif value_axe[1] == False:    
             for value in range(self.num_period):
                 # Graficar X vs Z
                 self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_periodo_{value}.txt')    
-                self.cut_filter = self.bmodel[self.bmodel.iloc[:,1] == int(self.update_axe.text())] # Filtra en X
+                self.cut_filter = self.bmodel[self.bmodel.iloc[:,1] == int(self.update_axey.text())] # Filtra en Y
                 self.figif = self.graficar(self.cut_filter.iloc[:,0],
                     self.cut_filter.iloc[:,2],
                     self.cut_filter.iloc[:,self.column_color],
                     value)
-                image[i] = f'ext{value}_cut{self.update_axe.text()}.png'
-                self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axe.text()}.png',format='png')
+                image[i] = f'ext{value}_cut{self.update_axey.text()}.png'
+                self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axey.text()}.png',format='png')
                 i+=1
+            frames = [Image.open(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\{img}') for img in image]
+            frames[0].save(
+                f"{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\gif_ext{int(self.num_period)}_cut{self.update_axey.text()}.gif",
+                save_all=True,
+                append_images=frames[1:],
+                optimize=True,
+                duration=500,  # Duración entre cuadros (ms)
+                loop=0         # 0 para bucle infinito
+            )
+            for img in image: # Borrar fotos de la grafica
+                os.remove(f'{self.simfolder}\\{img}')
+            gif_dialog = GifDialog(f"{self.simfolder}\\gif_ext{int(self.num_period)}_cut{self.update_axey.text()}.gif")
+            gif_dialog.set_save_path(f"{self.fold}\\{os.path.basename(self.simfolder)}")
+            gif_dialog.exec()
         else:                 
             for value in range(self.num_period):
                 # Graficar X vs Y
                 self.bmodel=pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\modelo_actualizado_periodo_{value}.txt')    
-                self.cut_filter = self.bmodel[self.bmodel.iloc[:,2] == int(self.update_axe.text())] # Filtra en X
+                self.cut_filter = self.bmodel[self.bmodel.iloc[:,2] == int(self.update_axez.text())] # Filtra en X
                 self.figif = self.graficar(self.cut_filter.iloc[:,0],
                     self.cut_filter.iloc[:,1],
                     self.cut_filter.iloc[:,self.column_color],
                     value)
-                image[i] = f'ext{value}_cut{self.update_axe.text()}.png'
-                self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axe.text()}.png',format='png')
+                image[i] = f'ext{value}_cut{self.update_axez.text()}.png'
+                self.figif.savefig(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\ext{value}_cut{self.update_axez.text()}.png',format='png')
                 i+=1
-        frames = [Image.open(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\{img}') for img in image]
-        frames[0].save(
-            f"{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\gif_ext{int(self.num_period)}_cut{self.update_axe.text()}.gif",
-            save_all=True,
-            append_images=frames[1:],
-            optimize=True,
-            duration=500,  # Duración entre cuadros (ms)
-            loop=0         # 0 para bucle infinito
-        )
-        for img in image: # Borrar fotos de la grafica
-            os.remove(f'{self.simfolder}\\{img}')
-        gif_dialog = GifDialog(f"{self.simfolder}\\gif_ext{int(self.num_period)}_cut{self.update_axe.text()}.gif")
-        gif_dialog.set_save_path(f"{self.fold}\\{os.path.basename(self.simfolder)}")
-        gif_dialog.exec()
+            frames = [Image.open(f'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\{img}') for img in image]
+            frames[0].save(
+                f"{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\gif_ext{int(self.num_period)}_cut{self.update_axez.text()}.gif",
+                save_all=True,
+                append_images=frames[1:],
+                optimize=True,
+                duration=500,  # Duración entre cuadros (ms)
+                loop=0         # 0 para bucle infinito
+            )
+            for img in image: # Borrar fotos de la grafica
+                os.remove(f'{self.simfolder}\\{img}')
+            gif_dialog = GifDialog(f"{self.simfolder}\\gif_ext{int(self.num_period)}_cut{self.update_axez.text()}.gif")
+            gif_dialog.set_save_path(f"{self.fold}\\{os.path.basename(self.simfolder)}")
+            gif_dialog.exec()
     
     def graficar3d(self):
         """ Funcion para mostrar la grafica 3D """
