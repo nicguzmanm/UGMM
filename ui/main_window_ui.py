@@ -564,17 +564,20 @@ class Ui_main_window(object):
 
         self.graphx = QCheckBox(self.tab)
         self.graphx.setObjectName(u"graphx")
+        self.graphx.setEnabled(False)
 
         self.gridLayout_5.addWidget(self.graphx, 2, 0, 1, 1)
 
         self.cortex = QSlider(self.tab)
         self.cortex.setObjectName(u"cortex")
+        self.cortex.setEnabled(False)
         self.cortex.setOrientation(Qt.Horizontal)
 
         self.gridLayout_5.addWidget(self.cortex, 2, 1, 1, 1)
 
         self.update_axex = QLineEdit(self.tab)
         self.update_axex.setObjectName(u"update_axex")
+        self.update_axex.setEnabled(False)
         self.update_axex.setMaximumSize(QSize(60, 16777215))
 
         self.gridLayout_5.addWidget(self.update_axex, 2, 2, 1, 1)
@@ -589,34 +592,40 @@ class Ui_main_window(object):
 
         self.graphy = QCheckBox(self.tab)
         self.graphy.setObjectName(u"graphy")
+        self.graphy.setEnabled(False)
 
         self.gridLayout_5.addWidget(self.graphy, 3, 0, 1, 1)
 
         self.cortey = QSlider(self.tab)
         self.cortey.setObjectName(u"cortey")
+        self.cortey.setEnabled(False)
         self.cortey.setOrientation(Qt.Horizontal)
 
         self.gridLayout_5.addWidget(self.cortey, 3, 1, 1, 1)
 
         self.update_axey = QLineEdit(self.tab)
         self.update_axey.setObjectName(u"update_axey")
+        self.update_axey.setEnabled(False)
         self.update_axey.setMaximumSize(QSize(60, 16777215))
 
         self.gridLayout_5.addWidget(self.update_axey, 3, 2, 1, 1)
 
         self.graphz = QCheckBox(self.tab)
         self.graphz.setObjectName(u"graphz")
+        self.graphz.setEnabled(False)
 
         self.gridLayout_5.addWidget(self.graphz, 4, 0, 1, 1)
 
         self.cortez = QSlider(self.tab)
         self.cortez.setObjectName(u"cortez")
+        self.cortez.setEnabled(False)
         self.cortez.setOrientation(Qt.Horizontal)
 
         self.gridLayout_5.addWidget(self.cortez, 4, 1, 1, 1)
 
         self.update_axez = QLineEdit(self.tab)
         self.update_axez.setObjectName(u"update_axez")
+        self.update_axez.setEnabled(False)
         sizePolicy1.setHeightForWidth(self.update_axez.sizePolicy().hasHeightForWidth())
         self.update_axez.setSizePolicy(sizePolicy1)
         self.update_axez.setMaximumSize(QSize(60, 16777215))
@@ -690,12 +699,14 @@ class Ui_main_window(object):
 
         self.horizontalSlider_4 = QRangeSlider(self.tab_2)
         self.horizontalSlider_4.setObjectName(u"horizontalSlider_4")
+        self.horizontalSlider_4.setEnabled(False)
         self.horizontalSlider_4.setOrientation(Qt.Horizontal)
 
         self.gridLayout_6.addWidget(self.horizontalSlider_4, 2, 1, 1, 1)
 
         self.lineEdit_12 = QLineEdit(self.tab_2)
         self.lineEdit_12.setObjectName(u"lineEdit_12")
+        self.lineEdit_12.setEnabled(False)
         self.lineEdit_12.setMaximumSize(QSize(60, 16777215))
 
         self.gridLayout_6.addWidget(self.lineEdit_12, 2, 2, 1, 1)
@@ -710,24 +721,28 @@ class Ui_main_window(object):
 
         self.horizontalSlider_5 = QRangeSlider(self.tab_2)
         self.horizontalSlider_5.setObjectName(u"horizontalSlider_5")
+        self.horizontalSlider_5.setEnabled(False)
         self.horizontalSlider_5.setOrientation(Qt.Horizontal)
 
         self.gridLayout_6.addWidget(self.horizontalSlider_5, 3, 1, 1, 1)
 
         self.lineEdit_13 = QLineEdit(self.tab_2)
         self.lineEdit_13.setObjectName(u"lineEdit_13")
+        self.lineEdit_13.setEnabled(False)
         self.lineEdit_13.setMaximumSize(QSize(60, 16777215))
 
         self.gridLayout_6.addWidget(self.lineEdit_13, 3, 2, 1, 1)
 
         self.horizontalSlider_6 = QRangeSlider(self.tab_2)
         self.horizontalSlider_6.setObjectName(u"horizontalSlider_6")
+        self.horizontalSlider_6.setEnabled(False)
         self.horizontalSlider_6.setOrientation(Qt.Horizontal)
 
         self.gridLayout_6.addWidget(self.horizontalSlider_6, 4, 1, 1, 1)
 
         self.lineEdit_14 = QLineEdit(self.tab_2)
         self.lineEdit_14.setObjectName(u"lineEdit_14")
+        self.lineEdit_14.setEnabled(False)
         sizePolicy1.setHeightForWidth(self.lineEdit_14.sizePolicy().hasHeightForWidth())
         self.lineEdit_14.setSizePolicy(sizePolicy1)
         self.lineEdit_14.setMaximumSize(QSize(60, 16777215))
@@ -829,7 +844,7 @@ class Ui_main_window(object):
 
         self.retranslateUi(main_window)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(main_window)
@@ -858,7 +873,9 @@ class Ui_main_window(object):
         self.salida_button.setText(QCoreApplication.translate("main_window", u"...", None))
         self.label_6.setText(QCoreApplication.translate("main_window", u"Par\u00e1metros del modelo:", None))
         self.label_7.setText(QCoreApplication.translate("main_window", u"Constante N", None))
+        self.inputMVC.setText(QCoreApplication.translate("main_window", u"3", None))
         self.label_8.setText(QCoreApplication.translate("main_window", u"Constante MVC", None))
+        self.inputN.setText(QCoreApplication.translate("main_window", u"2", None))
         self.stress_model.setText(QCoreApplication.translate("main_window", u"Modelo de Esfuerzo", None))
         self.simButton.setText(QCoreApplication.translate("main_window", u"Simular", None))
         self.stop.setText(QCoreApplication.translate("main_window", u"Detener", None))

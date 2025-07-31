@@ -50,11 +50,9 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         # por indicaciones del usuario
         error = 0
         """ Revisa si existe la carpetra report y guarda la carpeta donde estara el output de la simulacion """
-        if not os.path.exists(f'{ruta}\\{fold}'):
-            print('ruta',ruta)
-            print('fold',fold)
-            os.makedirs(f'{ruta}\\{fold}')
-
+        full_path = os.path.join(ruta, fold)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path)
         # Nombre base para las subcarpetas
         simfolder_base = os.path.join(f'{ruta}\\{fold}', "sim")
         simfolder = f"{simfolder_base}1"
@@ -72,9 +70,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
 
         # Cargar el modelo de bloques:
         block_model1 = np.loadtxt(bm, dtype=float, delimiter=',', skiprows=1)
-        t_inicio_rebloqueo = time.time()
         block_model2 = Generate.modelo_peque(block_model1, dcell[0])
-        t_fin_rebloqueo = time.time()
         #print(f"Tiempo del rebloqueo: {t_fin_rebloqueo - t_inicio_rebloqueo:.2f} segundos")
         block_model = orden(block_model2)
         block_model, origin_x, origin_y, origin_z = Move.translate_model(block_model)
@@ -146,14 +142,15 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
 
         # Leer tonelaje objetivo desde archivo
         df_periodos = pd.read_csv(ext, index_col=0)
+        df_periodos = df_periodos.loc[:, ~df_periodos.columns.astype(str).str.contains('^Unnamed')]
+        df_periodos = df_periodos.dropna(how='all')
+
+        final_period = df_periodos.shape[1]
         tonelaje_objetivo_por_periodo = {
             int(periodo): df_periodos[periodo].dropna().to_dict()
             for periodo in df_periodos.columns
         }
-        final_period = len(tonelaje_objetivo_por_periodo)
         
-        # Se definen los periodos que se guardaran
-        period_save = [None] * final_period
 
         # Variables retornadas de la simulacion, que son mostradas en la pestaña de resultados
         if stress_activate:
@@ -175,7 +172,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
 
         # Contar cuántos 'P' tienen algún valor > 0
         puntos_activos = [p for p, v in acumulado_por_P.items() if v > 0]
-        ton_total += 105 * len(puntos_activos) * final_period
+        ton_total += 107 * len(puntos_activos) * final_period
         ton_actual = 0
         progress = [0] * final_period
         it = 0
@@ -183,8 +180,8 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         #----------------------------------------------------------------------------------------------------------------------------------
         progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
         if stop_requested:
-            return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
-        #----------------------------------------------------------------------------------------------------------------------------------
+            return esf, tonnage, mean_grade, simfolder, error, fine_metal
+        #---------------------------------------------------------------------------------------------------------------------------------
 
         
         
@@ -225,7 +222,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                         #----------------------------------------------------------------------------------------------------------------------------------
                         progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                         if stop_requested:
-                            return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                            return esf, tonnage, mean_grade, simfolder, error, fine_metal
                         #----------------------------------------------------------------------------------------------------------------------------------
 
                         # Actualizar las extracciones:
@@ -270,7 +267,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             #----------------------------------------------------------------------------------------------------------------------------------
                             progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
-                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
                             # BÃºsqueda de vacÃ­os y cambios de estado:                  
                             flow_outputs = Flow.draw(
@@ -315,7 +312,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             #----------------------------------------------------------------------------------------------------------------------------------
                             progress_value, stop_requested = update_progress_check_stopped(progress_value, sum(progress)/ton_total, update_progress, stop_sim)
                             if stop_requested:
-                                return esf, period_save, tonnage, mean_grade, simfolder, error, fine_metal
+                                return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
                             # 3) Extrae de golpe las coordenadas de los DP en un array Nx3:
                             dp_coords = drawpoints_df[['x', 'y', 'z']].to_numpy()
@@ -496,6 +493,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                             if stop_requested:
                                 return esf, tonnage, mean_grade, simfolder, error, fine_metal
                             #----------------------------------------------------------------------------------------------------------------------------------
+                            print(int(sum(progress)),'/',ton_total,' = ', int(sum(progress)*100/ton_total),'%')
                             #print(f"Tiempo paso de extraccion {extractions}: {t_fin_extraccion_punto - t_inicio_extraccion:.2f} s")
                             if extraccion_completa:
                                 # Exportar un archivo con los bloques extraÃ­dos por perÃ­odo:
@@ -547,6 +545,11 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
                         print(f"Tiempo para el peri­odo {period}: {t_fin_periodo - t_inicio_periodo:.2f} segundos")
 
                         period += 1
+                    #----------------------------------------------------------------------------------------------------------------------------------
+                    progress_value, stop_requested = update_progress_check_stopped(progress_value, 0.99, update_progress, stop_sim)
+                    if stop_requested:
+                        return esf, tonnage, mean_grade, simfolder, error, fine_metal
+                    #----------------------------------------------------------------------------------------------------------------------------------
                     
                     block_model_df = pd.DataFrame(block_model, columns=['x', 'y', 'z', 'state', 'd50', 'id', 'dist', 'distacum', 'grade', 'density', 'mi', 'period'])
 

@@ -712,6 +712,9 @@ QPushButton:disabled {
           </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="graphx">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Eje X</string>
             </property>
@@ -729,6 +732,9 @@ QPushButton:disabled {
           </item>
           <item row="2" column="2">
            <widget class="QLineEdit" name="update_axex">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>60</width>
@@ -755,6 +761,9 @@ QPushButton:disabled {
           </item>
           <item row="3" column="0">
            <widget class="QCheckBox" name="graphy">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Eje Y</string>
             </property>
@@ -772,6 +781,9 @@ QPushButton:disabled {
           </item>
           <item row="3" column="2">
            <widget class="QLineEdit" name="update_axey">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>60</width>
@@ -782,6 +794,9 @@ QPushButton:disabled {
           </item>
           <item row="4" column="0">
            <widget class="QCheckBox" name="graphz">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Eje Z</string>
             </property>
@@ -799,6 +814,9 @@ QPushButton:disabled {
           </item>
           <item row="4" column="2">
            <widget class="QLineEdit" name="update_axez">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -955,6 +973,9 @@ QPushButton:disabled {
           </item>
           <item row="2" column="2">
            <widget class="QLineEdit" name="lineEdit_12">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>60</width>
@@ -991,6 +1012,9 @@ QPushButton:disabled {
           </item>
           <item row="3" column="2">
            <widget class="QLineEdit" name="lineEdit_13">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="maximumSize">
              <size>
               <width>60</width>
@@ -1011,6 +1035,9 @@ QPushButton:disabled {
           </item>
           <item row="4" column="2">
            <widget class="QLineEdit" name="lineEdit_14">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>

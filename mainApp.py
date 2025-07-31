@@ -87,14 +87,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Graficar en 3D
         self.view3d.clicked.connect(self.graficar3d)
-        self.graphx.stateChanged.connect(self.actualizar_sliders)
-        self.graphy.stateChanged.connect(self.actualizar_sliders)
-        self.graphz.stateChanged.connect(self.actualizar_sliders)
 
-        # Guardar los ejes que se quieran graficar
-        self.cortex.valueChanged.connect(self.update_value)
-        self.cortey.valueChanged.connect(self.update_value)
-        self.cortez.valueChanged.connect(self.update_value)
+        # Chequear solo la seleccion de dos ejes
+        self.graphx.clicked.connect(lambda checked: self.actualizar_sliders(checked, sigma=1))
+        self.graphy.clicked.connect(lambda checked: self.actualizar_sliders(checked, sigma=2))
+        self.graphz.clicked.connect(lambda checked: self.actualizar_sliders(checked, sigma=3))
+        self.cortex.valueChanged.connect(self.update_valuex)
+        self.cortey.valueChanged.connect(self.update_valuey)
+        self.cortez.valueChanged.connect(self.update_valuez)
         self.grapher.clicked.connect(self.select_graph) # Graficar
 
         # Detener simulacion
@@ -256,14 +256,17 @@ class MainWindow(QtWidgets.QMainWindow):
             self.bmfile = ruta
             self.bmName.setText(f'{os.path.basename(self.bmfile)}')
             self.bmpreceed = self.bmfile
+            print(self.bmpreceed)
         
     def importdp(self):
+
         self.dpfile, _ = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Seleccionar archivo de puntos de extracción', '', 'CSV Files (*.csv);; Excel Files (*.xlsx);; Text Files (*.txt);; All files (*)'
         )
         if self.dpfile:
             self.dpName.setText(f'{os.path.basename(self.dpfile)}')
             self.dppreceed = self.dpfile
+
     def importext(self):
         self.extfile, _  = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Seleccionar archivo de plan de extracción', '', 'CSV Files (*.csv);; Excel Files (*.xlsx);; Text Files (*.txt);; All files (*)'
@@ -272,6 +275,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.extName.setText(f'{os.path.basename(self.extfile)}')
             self.extpreceed = self.extfile
             df_periodos = pd.read_csv(self.extpreceed, index_col=0)
+            df_periodos = df_periodos.loc[:, ~df_periodos.columns.astype(str).str.contains('^Unnamed')]
+            df_periodos = df_periodos.dropna(how='all')
             tonelaje_objetivo_por_periodo = {
             int(periodo): df_periodos[periodo].dropna().to_dict()
             for periodo in df_periodos.columns
@@ -290,9 +295,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def corrector(self): 
         try:
-            self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
-            self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
-            self.extpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/periodo1.csv"
+            # Desktop
+            self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
+            self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
+            self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
+            self.num_period = 2
+            # Notebook
+            #self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
+            #self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
+            #self.extpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/periodo1.csv"
 
             if not self.dppreceed or not self.bmpreceed or not self.extpreceed:
                 QtWidgets.QMessageBox.warning(
@@ -337,7 +348,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.stress_activate = False
         self.ruta = os.path.dirname(os.path.normpath(self.ruta_completa))
-        self.dcell = [2,2,2]
+
+        self.dcell = [2,2,2] # Tamaño de bloque
         
         """ Entra a la simulación"""
 
@@ -404,7 +416,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # Se agregan las extracciones que se simularon en la pestaña de grafica para poder visualizarlas
             self.extrbox = self.findChild(QtWidgets.QComboBox,'extrbox')
-            for i in range(1,self.num_period +1):
+            for i in range(1,self.num_period + 1):
                 self.extrbox.addItem(f'{i}')
             
             self.extrbox3d = self.findChild(QtWidgets.QComboBox,'extrbox3d')
@@ -421,6 +433,8 @@ class MainWindow(QtWidgets.QMainWindow):
             
             
             self.activate()
+            self.axe_corte()
+
         elif not self.exit and self.error == 0: 
             # Se detuvo la Simulacion
             # Nos desahacemos de las variables que creo a medias la funcion
@@ -462,9 +476,24 @@ class MainWindow(QtWidgets.QMainWindow):
                 self, 'Error', 'La simulación presento un error, porfavor revisar archivos importados junto al tamaño de bloque.'
             )
         
-    def ejes(self):
-        """ Ver que no esta seleccionado mas de dos ejes a graficar en pestaña 2D """
-
+    def axe_corte(self):
+        """ 
+        Segun la coordenada elejida se importara el archivo elejido por el usuario y 
+        se vera la cota en que se encuentra la coordenada a realizar el corte
+        """
+        try:
+            self.bmodel=pd.read_csv(rf'{self.simfolder}\\modelo_actualizado_periodo_{self.extrbox.currentText()}.csv')
+        except:
+            self.cortex.setEnabled(False)
+            self.cortey.setEnabled(False)
+            self.cortez.setEnabled(False)
+            self.grapher.setEnabled(False)
+            self.update_axex.setEnabled(False)
+            self.update_axey.setEnabled(False)
+            self.update_axez.setEnabled(False)
+            QtWidgets.QMessageBox.critical(self, 'Error', 'La carpeta donde se guardó la simulación reciente ha sido eliminada. Por favor, vuelve a simular para poder visualizar los resultados.')
+            
+            return
         self.checkboxes = [self.graphx, self.graphy, self.graphz]
         self.value_axe=[checkbox.isChecked() for checkbox in self.checkboxes]
         num_check = sum(self.value_axe)
@@ -474,77 +503,59 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self.extrbox.currentText():
             QtWidgets.QMessageBox.warning(self, 'Alerta', 'Seleccionar la extracción a graficar.')
             return
-        
-        self.corte.setEnabled(True)
-        self.grapher.setEnabled(True)
-        self.update_axe.setEnabled(True)
-        self.axe_corte()
-        
-    def axe_corte(self):
-        """ 
-        Segun la coordenada elejida se importara el archivo elejido por el usuario y 
-        se vera la cota en que se encuentra la coordenada a realizar el corte
-        """
-        try:
-            self.bmodel=pd.read_csv(rf'{self.simfolder}\\modelo_actualizado_periodo_{self.extrbox.currentText()}.txt')
-        except:
-            self.corte.setEnabled(False)
-            self.grapher.setEnabled(False)
-            self.update_axe.setEnabled(False)
-            QtWidgets.QMessageBox.critical(self, 'Error', 'La carpeta donde se guardó la simulación reciente ha sido eliminada. Por favor, vuelve a simular para poder visualizar los resultados.')
-            
-            return
-        if self.value_axe[0] == False:
             # Se realizara el corte en el eje X
-            self.corte.setMinimum(int(round(min(self.bmodel.iloc[:,0]),0)))
-            self.corte.setMaximum(int(round(max(self.bmodel.iloc[:,0]),0)))
+        self.cortex.setMinimum(int(round(min(self.bmodel.iloc[:,0]),0)))
+        self.cortex.setMaximum(int(round(max(self.bmodel.iloc[:,0]),0)))
 
-            # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
-            # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
-            self.corte.setSingleStep(self.dcell[0])
-            self.coordstep = self.dcell[0]
-            
-            self.mincut.setText(f'{min(self.bmodel.iloc[:,0])}')
-            self.maxcut.setText(f'{max(self.bmodel.iloc[:,0])}')
-            self.coord.setText('X')
+        # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
+        # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
+        self.cortex.setSingleStep(self.dcell[0])
+        self.coordstep = self.dcell[0]
         
-        elif self.value_axe[1] == False:
-            # Se realizara el corte en el eje Y
-            self.corte.setMinimum(int(round(min(self.bmodel.iloc[:,1]),0)))
-            self.corte.setMaximum(int(round(max(self.bmodel.iloc[:,1]),0)))
+        # Se realizara el corte en el eje Y
+        self.cortey.setMinimum(int(round(min(self.bmodel.iloc[:,1]),0)))
+        self.cortey.setMaximum(int(round(max(self.bmodel.iloc[:,1]),0)))
 
-            # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
-            # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
-            self.corte.setSingleStep(self.dcell[1])
-            self.coordstep = self.dcell[1]
+        # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
+        # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
+        self.cortey.setSingleStep(self.dcell[1])
+        self.coordstep = self.dcell[1]
 
-            self.mincut.setText(f'{min(self.bmodel.iloc[:,1])}')
-            self.maxcut.setText(f'{max(self.bmodel.iloc[:,1])}')
-            self.coord.setText('Y')
+        # Se realizara el corte en el eje Z
+        self.cortez.setMinimum(int(round(min(self.bmodel.iloc[:,2]),0)))
+        self.cortez.setMaximum(int(round(max(self.bmodel.iloc[:,2]),0)))
 
-        else:
-            # Se realizara el corte en el eje Z
-            self.corte.setMinimum(int(round(min(self.bmodel.iloc[:,2]),0)))
-            self.corte.setMaximum(int(round(max(self.bmodel.iloc[:,2]),0)))
+        # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
+        # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
+        self.cortez.setSingleStep(self.dcell[2])
+        self.coordstep = self.dcell[2]
 
-            # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
-            # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
-            self.corte.setSingleStep(self.dcell[2])
-            self.coordstep = self.dcell[2]
-
-            self.mincut.setText(f'{min(self.bmodel.iloc[:,2])}')
-            self.maxcut.setText(f'{max(self.bmodel.iloc[:,2])}')
-            self.coord.setText('Z')
-
-    def actualizar_sliders(self):
+    def actualizar_sliders(self, state, sigma):
         """ Dependiendo de el check box marcado se activara el eje faltante"""
+
+        # Activara el slide para el eje que no este activado
         x = self.graphx.isChecked()
         y = self.graphy.isChecked()
         z = self.graphz.isChecked()
+        
+        checkboxes = [self.graphx, self.graphy, self.graphz]
+        checked = [cb for cb in checkboxes if cb.isChecked()]
 
+        if len(checked) > 2:
+            sender = self.sender()
+            sender.blockSignals(True)
+            sender.setChecked(False)
+            sender.blockSignals(False)
+
+        # Desactiva todos antes de habilitar el que falta
         self.cortex.setEnabled(False)
         self.cortey.setEnabled(False)
         self.cortez.setEnabled(False)
+
+        # Actualiza el estado de x,y,z después posible cambio
+        x = self.graphx.isChecked()
+        y = self.graphy.isChecked()
+        z = self.graphz.isChecked()
 
         if sum([x, y, z]) == 2:
             if not x:
@@ -554,9 +565,11 @@ class MainWindow(QtWidgets.QMainWindow):
             elif not z:
                 self.cortez.setEnabled(True)
 
-    def update_value(self):
+        print('se actualizo', x, y, z, ' = ', sum([x, y, z]))
+
+    def update_valuex(self):
         """ Obtener el valor del slider y actualizar el label """
-        value = self.corte.value()
+        value = self.cortex.value()
     
         # Ajustar el valor al multiplo más cercano el singleStep
         # Segun la coordenada que se quiera cortar
@@ -564,10 +577,40 @@ class MainWindow(QtWidgets.QMainWindow):
             value = value - (value % self.coordstep)
         
         # Establecer el valor actualizado
-        self.corte.setValue(value) 
+        self.cortex.setValue(value) 
         
         # Mostrar el valor en el label
-        self.update_axe.setText(f"{value}")
+        self.update_axex.setText(f"{value}")
+    
+    def update_valuey(self):
+        """ Obtener el valor del slider y actualizar el label """
+        value = self.cortey.value()
+    
+        # Ajustar el valor al multiplo más cercano el singleStep
+        # Segun la coordenada que se quiera cortar
+        if value % self.coordstep != 0:
+            value = value - (value % self.coordstep)
+        
+        # Establecer el valor actualizado
+        self.cortey.setValue(value) 
+        
+        # Mostrar el valor en el label
+        self.update_axey.setText(f"{value}")
+
+    def update_valuez(self):
+        """ Obtener el valor del slider y actualizar el label """
+        value = self.cortez.value()
+    
+        # Ajustar el valor al multiplo más cercano el singleStep
+        # Segun la coordenada que se quiera cortar
+        if value % self.coordstep != 0:
+            value = value - (value % self.coordstep)
+        
+        # Establecer el valor actualizado
+        self.cortez.setValue(value) 
+        
+        # Mostrar el valor en el label
+        self.update_axez.setText(f"{value}")
 
     def select_graph(self):
         # Configurar el lineEdit del corte para que no se salga de la cota
