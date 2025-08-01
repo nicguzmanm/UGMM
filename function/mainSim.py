@@ -142,14 +142,17 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         })
 
         # Leer tonelaje objetivo desde archivo
-        with open(ext, newline='', encoding='utf-8') as f:
+        with open(ext, 'r', encoding='utf-8') as infile:
+            lines = [line.rstrip(';\n') + '\n' for line in infile]
+
+        with open('archivo_limpio.csv', 'w', encoding='utf-8') as outfile:
+            outfile.writelines(lines)
+
+        # Luego lo lees como siempre:
+        with open('archivo_limpio.csv', newline='', encoding='utf-8') as f:
             dialect = csv.Sniffer().sniff(f.read(1024))
             f.seek(0)
             df_periodos = pd.read_csv(f, sep=dialect.delimiter, index_col=0)
-
-        df_periodos.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
-        df_periodos.dropna(axis=1, how='all', inplace=True)
-        df_periodos = df_periodos.apply(pd.to_numeric, errors='ignore')
 
         print(df_periodos)
         final_period = df_periodos.shape[1]

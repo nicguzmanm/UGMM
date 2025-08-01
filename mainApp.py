@@ -8,6 +8,7 @@ import pandas as pd
 import os
 import numpy as np
 import traceback
+import csv
 
 from result import Resultados
 from thread import SimulationThread
@@ -289,9 +290,18 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.extfile:
             self.extName.setText(f'{os.path.basename(self.extfile)}')
             self.extpreceed = self.extfile
-            df_periodos = pd.read_csv(self.extpreceed, index_col=0)
-            df_periodos = df_periodos.loc[:, ~df_periodos.columns.astype(str).str.contains('^Unnamed')]
-            df_periodos = df_periodos.dropna(how='all')
+            with open(self.extpreceed, 'r', encoding='utf-8') as infile:
+                lines = [line.rstrip(';\n') + '\n' for line in infile]
+
+            with open('archivo_limpio.csv', 'w', encoding='utf-8') as outfile:
+                outfile.writelines(lines)
+
+            # Luego lo lees como siempre:
+            with open('archivo_limpio.csv', newline='', encoding='utf-8') as f:
+                dialect = csv.Sniffer().sniff(f.read(1024))
+                f.seek(0)
+                df_periodos = pd.read_csv(f, sep=dialect.delimiter, index_col=0)
+            
             tonelaje_objetivo_por_periodo = {
             int(periodo): df_periodos[periodo].dropna().to_dict()
             for periodo in df_periodos.columns
@@ -311,10 +321,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def corrector(self): 
         try:
             # Desktop
-            self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
-            self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
-            self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
-            self.num_period = 5
+            # self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
+            # self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
+            # self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
+            # self.num_period = 5
             # Notebook
             # self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
             # self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
