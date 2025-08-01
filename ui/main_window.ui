@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>942</width>
-    <height>624</height>
+    <width>1031</width>
+    <height>805</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -908,7 +908,7 @@ QPushButton:disabled {
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="graphlayout2d"/>
+         <layout class="QVBoxLayout" name="graphlayout2d"/>
         </item>
        </layout>
       </widget>
@@ -919,6 +919,22 @@ QPushButton:disabled {
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <layout class="QGridLayout" name="gridLayout_6">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="extrbox3d">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_15">
             <property name="sizePolicy">
@@ -938,49 +954,10 @@ QPushButton:disabled {
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="extrbox3d">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
              <string>Categoría</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QRangeSlider" name="horizontalSlider_4">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QLineEdit" name="lineEdit_12">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>60</width>
-              <height>16777215</height>
-             </size>
             </property>
            </widget>
           </item>
@@ -997,79 +974,6 @@ QPushButton:disabled {
               <width>150</width>
               <height>0</height>
              </size>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QRangeSlider" name="horizontalSlider_5">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLineEdit" name="lineEdit_13">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>60</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QRangeSlider" name="horizontalSlider_6">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QLineEdit" name="lineEdit_14">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>60</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>Eje X</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>Eje Y</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>Eje Z</string>
             </property>
            </widget>
           </item>
@@ -1150,7 +1054,7 @@ QPushButton:disabled {
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="graphlayout3d"/>
+         <layout class="QVBoxLayout" name="graphlayout3d"/>
         </item>
        </layout>
       </widget>
@@ -1163,7 +1067,7 @@ QPushButton:disabled {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>942</width>
+     <width>1031</width>
      <height>22</height>
     </rect>
    </property>
@@ -1262,13 +1166,6 @@ QPushButton:disabled {
    </property>
   </action>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QRangeSlider</class>
-   <extends>QSlider</extends>
-   <header>superqt.sliders</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

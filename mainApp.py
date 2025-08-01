@@ -1,6 +1,7 @@
 from PyQt6 import QtWidgets, uic, QtGui
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QSizePolicy
 
 import sys
 import pandas as pd
@@ -16,6 +17,7 @@ from config import Configuration
 from importer import Importbm
 
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from matplotlib.colors import LinearSegmentedColormap
@@ -79,11 +81,25 @@ class MainWindow(QtWidgets.QMainWindow):
         # Poner un canvas en el lugar donde ira la grafica
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
+        self.toolbar = NavigationToolbar(self.canvas, self)
+        self.canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.toolbar.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.toolbar.setFixedHeight(30) 
+        self.toolbar.setFixedWidth(200)
+        self.graphlayout2d.setSpacing(10)
         self.graphlayout2d.addWidget(self.canvas)
+        self.graphlayout2d.addWidget(self.toolbar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.figure3d = plt.figure()
         self.canvas3d = FigureCanvas(self.figure3d)
+        self.toolbar3d = NavigationToolbar(self.canvas3d, self)
+        self.canvas3d.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.toolbar3d.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        self.toolbar3d.setFixedHeight(30) 
+        self.toolbar3d.setFixedWidth(200)
+        self.graphlayout3d.setSpacing(10)
         self.graphlayout3d.addWidget(self.canvas3d)
+        self.graphlayout3d.addWidget(self.toolbar3d, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Graficar en 3D
         self.view3d.clicked.connect(self.graficar3d)
@@ -295,14 +311,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def corrector(self): 
         try:
             # Desktop
-            #self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
-            #self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
-            #self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
-            self.num_period = 2
+            self.bmpreceed = "E:/GuardarNico/Udec/Try/model1.csv"
+            self.dppreceed = "E:/GuardarNico/Udec/Try/drawpoints1.csv"
+            self.extpreceed = "E:/GuardarNico/Udec/Try/periodo1.csv"
+            self.num_period = 5
             # Notebook
-            self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
-            self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
-            self.extpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/periodo1.csv"
+            # self.bmpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/model1.csv"
+            # self.dppreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/drawpoints1.csv"
+            # self.extpreceed = "C:/Users/Nico/Desktop/UGMM/tryfile/periodo1.csv"
 
             if not self.dppreceed or not self.bmpreceed or not self.extpreceed:
                 QtWidgets.QMessageBox.warning(
@@ -391,10 +407,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.exit and self.error == 0:
             # Salida sin detenerse y exitosa
             # Parametros de salida
-            self.progressBar.setValue(100)
-            QtWidgets.QMessageBox.information(
-                self, 'Éxito', '¡Simulación completada con éxito!'
-            )
+            
+
             self.fine_metal = fine_metal
             self.stress = stress
             self.ton = ton
@@ -402,7 +416,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ton = ton
             self.grade = grade
             simfolder = os.path.normpath(simfolder)
-            self.sim_status.setText(rf'Simulación guardada en {os.path.join(*simfolder.split(os.sep)[-3:])}')
+            
 
             # Creacion del archivo de resultados
             # Extraccion, Esfuerzo, Ton, Ton acumulada, Ley, Ley acumulada
@@ -414,6 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
             df.to_csv(result_namefile, index=False)
 
             # Se agregan las extracciones que se simularon en la pestaña de grafica para poder visualizarlas
+            
             self.extrbox = self.findChild(QtWidgets.QComboBox,'extrbox')
             for i in range(1,self.num_period + 1):
                 self.extrbox.addItem(f'{i}')
@@ -424,15 +439,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.extrbox3d.addItem(f'Todos los periodos')
             
             # Categorias que el usario eligira para visualizar los colores en la grafica
-            self.item = ["x", "y", "z", "state", "d50", "id", "dist", "distacum", "grade", "dens", "mi","period"]
-            self.item3d = ["x", "y", "z", "State", "d50", "id", "dist", "distacum", "grade", "dens", "mi", "period"]
+            self.item = ["x", "z", "y", "state", "d50", "id", "dist", "distacum", "grade", "dens", "mi","period"]
+            self.item3d = ["x", "y", "z", "id", "densidad", "ley", "periodo", "punto_extraccion", "extraccion"]
             self.cat.addItems(self.item)
             self.cat3d.addItems(self.item3d)
-            self.simButton.setText('Simular') 
+            
             
             
             self.activate()
             self.axe_corte()
+            
+            self.progressBar.setValue(100)
+            QtWidgets.QMessageBox.information(
+                self, 'Éxito', '¡Simulación completada con éxito!'
+            )
+            self.sim_status.setText(rf'Simulación guardada en {os.path.join(*simfolder.split(os.sep)[-3:])}')
+            self.simButton.setText('Simular') 
+            
 
         elif not self.exit and self.error == 0: 
             # Se detuvo la Simulacion
@@ -476,9 +499,9 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         
     def axe_corte(self):
-        """ 
-        Segun la coordenada elejida se importara el archivo elejido por el usuario y 
-        se vera la cota en que se encuentra la coordenada a realizar el corte
+        """
+        Según la coordenada elegida se importará el archivo elegido por el usuario y 
+        se verá la cota en que se encuentra la coordenada a realizar el corte.
         """
         try:
             self.bmodel = pd.read_csv(
@@ -486,7 +509,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 sep=';'
             )
             self.grapher.setEnabled(True)
-        except:
+        except Exception:
             self.cortex.setEnabled(False)
             self.cortey.setEnabled(False)
             self.cortez.setEnabled(False)
@@ -494,43 +517,29 @@ class MainWindow(QtWidgets.QMainWindow):
             self.update_axex.setEnabled(False)
             self.update_axey.setEnabled(False)
             self.update_axez.setEnabled(False)
-            QtWidgets.QMessageBox.critical(self, 'Error', 'La carpeta donde se guardó la simulación reciente ha sido eliminada. Por favor, vuelve a simular para poder visualizar los resultados.')
-            
+            QtWidgets.QMessageBox.critical(
+                self, 'Error', 
+                'La carpeta donde se guardó la simulación reciente ha sido eliminada. Por favor, vuelve a simular para poder visualizar los resultados.'
+            )
             return
-        
 
-        # Se realizara el corte en el eje X
-        self.mincutx = int(round(min(self.bmodel.iloc[:,0]),0))
-        self.maxcutx = int(round(max(self.bmodel.iloc[:,0]),0))
-        self.cortex.setMinimum(self.mincutx)
-        self.cortex.setMaximum(self.maxcutx)
+        sliders = [self.cortex, self.cortey, self.cortez]
+        mincuts = []
+        maxcuts = []
 
-        # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
-        # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
-        self.cortex.setSingleStep(self.dcell[0])
-        self.coordstepx = self.dcell[0]
-        
-        # Se realizara el corte en el eje Y
-        self.mincuty = int(round(min(self.bmodel.iloc[:,1]),0))
-        self.maxcuty = int(round(max(self.bmodel.iloc[:,1]),0))
-        self.cortey.setMinimum(self.mincuty)
-        self.cortey.setMaximum(self.maxcuty)
+        for i, slider in enumerate(sliders):
+            col_data = self.bmodel.iloc[:, i]
+            min_val = int(round(col_data.min()))
+            max_val = int(round(col_data.max()))
+            slider.setMinimum(min_val)
+            slider.setMaximum(max_val)
+            slider.setSingleStep(self.dcell[i])
+            mincuts.append(min_val)
+            maxcuts.append(max_val)
 
-        # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
-        # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
-        self.cortey.setSingleStep(self.dcell[1])
-        self.coordstepy = self.dcell[1]
-
-        # Se realizara el corte en el eje Z
-        self.mincutz = int(round(min(self.bmodel.iloc[:,2]),0))
-        self.maxcutz = int(round(max(self.bmodel.iloc[:,2]),0))
-        self.cortez.setMinimum(self.mincutz)
-        self.cortez.setMaximum(self.maxcutz)
-
-        # Funcion que busca los valores unicos de las coordenadas y sus diferencias para asi
-        # en el QSlider donde se elija el corte no se elijan coordenadas a cortar que no existen
-        self.cortez.setSingleStep(self.dcell[2])
-        self.coordstepz = self.dcell[2]
+        self.mincutx, self.mincuty, self.mincutz = mincuts
+        self.maxcutx, self.maxcuty, self.maxcutz = maxcuts
+        self.coordstepx, self.coordstepy, self.coordstepz = self.dcell[0], self.dcell[1], self.dcell[2]
 
     def actualizar_sliders(self, state, sigma):
         """ Dependiendo de el check box marcado se activara el eje faltante"""
@@ -566,7 +575,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.cortey.setEnabled(True)
             elif not z:
                 self.cortez.setEnabled(True)
-
 
     def update_valuex(self):
         """ Obtener el valor del slider y actualizar el label """
@@ -738,16 +746,19 @@ class MainWindow(QtWidgets.QMainWindow):
         colors = cmap(norm(color))
         checkboxes = [self.graphx, self.graphy, self.graphz]
         value_axe=[checkbox.isChecked() for checkbox in checkboxes]
-
+        # X = 0
+        # z = 1
+        # Y = 2 (altura)
         if value_axe[0] == False:
-            # Graficar Y vs Z
+            # Graficar Z vs Y
             ax = self.figure.add_subplot(111)
-            ax.scatter(x, y, c=colors, marker='s', s = self.size2d)
+            ax.scatter(y, x, c=colors, marker='s', s = self.size2d)
             cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
             cbar.set_label(f'{self.item[self.column_color]}') # Leyenda
             ax.set_title(f"Periodo {ex} (Corte X = {int(self.update_axex.text())})")
-            ax.set_xlabel("Eje Y")
-            ax.set_ylabel("Eje Z")
+            ax.set_aspect('equal')
+            ax.set_xlabel("Eje Z")
+            ax.set_ylabel("Eje y")
 
         elif value_axe[1] == False:
             # Graficar X vs Z
@@ -756,6 +767,7 @@ class MainWindow(QtWidgets.QMainWindow):
             cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
             cbar.set_label(f'{self.item[self.column_color]}')
             ax.set_title(f"Periodo {ex} (Corte Y = {int(self.update_axey.text())})")
+            ax.set_aspect('equal')
             ax.set_xlabel("Eje X")
             ax.set_ylabel("Eje Z")
 
@@ -766,6 +778,7 @@ class MainWindow(QtWidgets.QMainWindow):
             cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
             cbar.set_label(f'{self.item[self.column_color]}')
             ax.set_title(f"Periodo {ex} (Corte Z = {int(self.update_axez.text())})")
+            ax.set_aspect('equal')
             ax.set_xlabel("Eje X")
             ax.set_ylabel("Eje Y")
         return self.figure
@@ -867,12 +880,15 @@ class MainWindow(QtWidgets.QMainWindow):
         
         try:
             bm3d = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\bloques_extraidos_periodo_{self.extrbox3d.currentText()}.csv', sep=';')
+            bm3d = bm3d.iloc[:, 1:]
+            print(bm3d)
             
-        except:
+        except Exception as e:
             self.state_graph3d = False
+            traceback.print_exc()
+            print(e)
             QtWidgets.QMessageBox.critical(self, 'Error', 'La carpeta donde se guardó la simulación reciente ha sido eliminada. Por favor, vuelve a simular para poder visualizar los resultados.')
             return
-        bm3d = bm3d[bm3d.iloc[:, 3].isin([1, 2])]
         self.column_color = self.cat3d.currentIndex()
         color3d = bm3d.iloc[:,self.column_color]
 
@@ -886,8 +902,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         ax.scatter(
             x, 
-            y, 
             z, 
+            y, 
             c=colors3d, 
             s=self.size3d, 
             marker='o'
@@ -895,9 +911,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
         cbar = self.figure.colorbar(plt.cm.ScalarMappable(norm=norm3d, cmap=cmap3d), ax=ax)
         cbar.set_label(f'{self.item3d[self.column_color]}') # Leyenda
+        max_range = np.array([x.max()-x.min(), y.max()-y.min(), z.max()-z.min()]).max() / 2.0
+
+        mid_x = (x.max()+x.min()) * 0.5
+        mid_y = (y.max()+y.min()) * 0.5
+        mid_z = (z.max()+z.min()) * 0.5
+
+        ax.set_xlim(mid_x - max_range, mid_x + max_range)
+        ax.set_ylim(mid_z - max_range, mid_z + max_range)
+        ax.set_zlim(mid_y - max_range, mid_y + max_range)
         ax.set_xlabel('X')
-        ax.set_ylabel('Y')
-        ax.set_zlabel('Z')
+        ax.set_ylabel('Z')
+        ax.set_zlabel('Y')
         
         self.canvas3d.draw()
 

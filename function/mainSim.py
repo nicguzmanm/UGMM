@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-from scipy.spatial import distance_matrix
+import csv
 
+from scipy.spatial import distance_matrix
 from function.translation import Move # Ok
 from function.optimizar import buscar_indices_nb, compute_tonnage_and_fines
 from function.flowmarkI import Flow # Ok
@@ -141,14 +142,14 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
         })
 
         # Leer tonelaje objetivo desde archivo
-        df_periodos = pd.read_csv(ext, index_col=0)
+        with open(ext, newline='', encoding='utf-8') as f:
+            dialect = csv.Sniffer().sniff(f.read(1024))
+            f.seek(0)
+            df_periodos = pd.read_csv(f, sep=dialect.delimiter, index_col=0)
 
-        df_periodos.columns = df_periodos.columns.str.replace(r';+', '', regex=True).str.strip()
-
-        df_periodos = df_periodos.replace(r';+', '', regex=True)
-
-        for col in df_periodos.columns:
-            df_periodos[col] = pd.to_numeric(df_periodos[col], errors='ignore')
+        df_periodos.replace(r'^\s*$', pd.NA, regex=True, inplace=True)
+        df_periodos.dropna(axis=1, how='all', inplace=True)
+        df_periodos = df_periodos.apply(pd.to_numeric, errors='ignore')
 
         print(df_periodos)
         final_period = df_periodos.shape[1]
@@ -178,7 +179,7 @@ def sim(N, MVC, ext, bm, dp, stress_activate, fold, ruta, dcell, update_progress
 
         # Contar cuántos 'P' tienen algún valor > 0
         puntos_activos = [p for p, v in acumulado_por_P.items() if v > 0]
-        ton_total += 107 * len(puntos_activos) * final_period
+        ton_total += 108 * len(puntos_activos) * final_period
         ton_actual = 0
         progress = [0] * final_period
         it = 0

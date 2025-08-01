@@ -23,13 +23,11 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
     QSpacerItem, QStatusBar, QTabWidget, QToolButton,
     QVBoxLayout, QWidget)
 
-from superqt.sliders import QRangeSlider
-
 class Ui_main_window(object):
     def setupUi(self, main_window):
         if not main_window.objectName():
             main_window.setObjectName(u"main_window")
-        main_window.resize(942, 624)
+        main_window.resize(1031, 805)
         icon = QIcon()
         icon.addFile(u"../assets/dark_UGMM.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         main_window.setWindowIcon(icon)
@@ -664,7 +662,7 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
 
-        self.graphlayout2d = QHBoxLayout()
+        self.graphlayout2d = QVBoxLayout()
         self.graphlayout2d.setObjectName(u"graphlayout2d")
 
         self.verticalLayout_2.addLayout(self.graphlayout2d)
@@ -676,14 +674,6 @@ class Ui_main_window(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.gridLayout_6 = QGridLayout()
         self.gridLayout_6.setObjectName(u"gridLayout_6")
-        self.label_15 = QLabel(self.tab_2)
-        self.label_15.setObjectName(u"label_15")
-        sizePolicy.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
-        self.label_15.setSizePolicy(sizePolicy)
-        self.label_15.setMinimumSize(QSize(100, 0))
-
-        self.gridLayout_6.addWidget(self.label_15, 0, 0, 1, 1)
-
         self.extrbox3d = QComboBox(self.tab_2)
         self.extrbox3d.setObjectName(u"extrbox3d")
         sizePolicy1.setHeightForWidth(self.extrbox3d.sizePolicy().hasHeightForWidth())
@@ -692,24 +682,18 @@ class Ui_main_window(object):
 
         self.gridLayout_6.addWidget(self.extrbox3d, 0, 1, 1, 1)
 
+        self.label_15 = QLabel(self.tab_2)
+        self.label_15.setObjectName(u"label_15")
+        sizePolicy.setHeightForWidth(self.label_15.sizePolicy().hasHeightForWidth())
+        self.label_15.setSizePolicy(sizePolicy)
+        self.label_15.setMinimumSize(QSize(100, 0))
+
+        self.gridLayout_6.addWidget(self.label_15, 0, 0, 1, 1)
+
         self.label_16 = QLabel(self.tab_2)
         self.label_16.setObjectName(u"label_16")
 
         self.gridLayout_6.addWidget(self.label_16, 1, 0, 1, 1)
-
-        self.horizontalSlider_4 = QRangeSlider(self.tab_2)
-        self.horizontalSlider_4.setObjectName(u"horizontalSlider_4")
-        self.horizontalSlider_4.setEnabled(False)
-        self.horizontalSlider_4.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_6.addWidget(self.horizontalSlider_4, 2, 1, 1, 1)
-
-        self.lineEdit_12 = QLineEdit(self.tab_2)
-        self.lineEdit_12.setObjectName(u"lineEdit_12")
-        self.lineEdit_12.setEnabled(False)
-        self.lineEdit_12.setMaximumSize(QSize(60, 16777215))
-
-        self.gridLayout_6.addWidget(self.lineEdit_12, 2, 2, 1, 1)
 
         self.cat3d = QComboBox(self.tab_2)
         self.cat3d.setObjectName(u"cat3d")
@@ -718,51 +702,6 @@ class Ui_main_window(object):
         self.cat3d.setMinimumSize(QSize(150, 0))
 
         self.gridLayout_6.addWidget(self.cat3d, 1, 1, 1, 1)
-
-        self.horizontalSlider_5 = QRangeSlider(self.tab_2)
-        self.horizontalSlider_5.setObjectName(u"horizontalSlider_5")
-        self.horizontalSlider_5.setEnabled(False)
-        self.horizontalSlider_5.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_6.addWidget(self.horizontalSlider_5, 3, 1, 1, 1)
-
-        self.lineEdit_13 = QLineEdit(self.tab_2)
-        self.lineEdit_13.setObjectName(u"lineEdit_13")
-        self.lineEdit_13.setEnabled(False)
-        self.lineEdit_13.setMaximumSize(QSize(60, 16777215))
-
-        self.gridLayout_6.addWidget(self.lineEdit_13, 3, 2, 1, 1)
-
-        self.horizontalSlider_6 = QRangeSlider(self.tab_2)
-        self.horizontalSlider_6.setObjectName(u"horizontalSlider_6")
-        self.horizontalSlider_6.setEnabled(False)
-        self.horizontalSlider_6.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_6.addWidget(self.horizontalSlider_6, 4, 1, 1, 1)
-
-        self.lineEdit_14 = QLineEdit(self.tab_2)
-        self.lineEdit_14.setObjectName(u"lineEdit_14")
-        self.lineEdit_14.setEnabled(False)
-        sizePolicy1.setHeightForWidth(self.lineEdit_14.sizePolicy().hasHeightForWidth())
-        self.lineEdit_14.setSizePolicy(sizePolicy1)
-        self.lineEdit_14.setMaximumSize(QSize(60, 16777215))
-
-        self.gridLayout_6.addWidget(self.lineEdit_14, 4, 2, 1, 1)
-
-        self.label_17 = QLabel(self.tab_2)
-        self.label_17.setObjectName(u"label_17")
-
-        self.gridLayout_6.addWidget(self.label_17, 2, 0, 1, 1)
-
-        self.label_18 = QLabel(self.tab_2)
-        self.label_18.setObjectName(u"label_18")
-
-        self.gridLayout_6.addWidget(self.label_18, 3, 0, 1, 1)
-
-        self.label_19 = QLabel(self.tab_2)
-        self.label_19.setObjectName(u"label_19")
-
-        self.gridLayout_6.addWidget(self.label_19, 4, 0, 1, 1)
 
 
         self.verticalLayout_3.addLayout(self.gridLayout_6)
@@ -796,7 +735,7 @@ class Ui_main_window(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_4)
 
-        self.graphlayout3d = QHBoxLayout()
+        self.graphlayout3d = QVBoxLayout()
         self.graphlayout3d.setObjectName(u"graphlayout3d")
 
         self.verticalLayout_3.addLayout(self.graphlayout3d)
@@ -808,7 +747,7 @@ class Ui_main_window(object):
         main_window.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(main_window)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 942, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1031, 22))
         self.menuArchivo = QMenu(self.menubar)
         self.menuArchivo.setObjectName(u"menuArchivo")
         self.menuVer = QMenu(self.menubar)
@@ -892,9 +831,6 @@ class Ui_main_window(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("main_window", u"Vista 2D", None))
         self.label_15.setText(QCoreApplication.translate("main_window", u"Periodo", None))
         self.label_16.setText(QCoreApplication.translate("main_window", u"Categor\u00eda", None))
-        self.label_17.setText(QCoreApplication.translate("main_window", u"Eje X", None))
-        self.label_18.setText(QCoreApplication.translate("main_window", u"Eje Y", None))
-        self.label_19.setText(QCoreApplication.translate("main_window", u"Eje Z", None))
         self.view3d.setText(QCoreApplication.translate("main_window", u"Graficar", None))
         self.gif3d.setText(QCoreApplication.translate("main_window", u"Animaci\u00f3n", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("main_window", u"Vista 3D", None))
