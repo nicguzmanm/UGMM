@@ -889,9 +889,14 @@ class MainWindow(QtWidgets.QMainWindow):
         ax = self.figure3d.add_subplot(111, projection='3d')
         
         try:
-            bm3d = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\bloques_extraidos_periodo_{self.extrbox3d.currentText()}.csv', sep=';')
-            bm3d = bm3d.iloc[:, 1:]
-            print(bm3d)
+            try:
+                period = int(self.extrbox3d.currentText()) # No borrar fuerza el error
+                bm3d = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\bloques_extraidos_periodo_{period}.csv', sep=';')
+                bm3d = bm3d.iloc[:, 1:]
+                bm3d = bm3d[bm3d.iloc[:, 6] == period]
+            except:
+                bm3d = pd.read_csv(rf'{self.ruta_completa}\\{os.path.basename(self.simfolder)}\\bloques_extraidos_periodo_{self.num_period}.csv', sep=';')
+                bm3d = bm3d.iloc[:, 1:]
             
         except Exception as e:
             self.state_graph3d = False
@@ -909,6 +914,7 @@ class MainWindow(QtWidgets.QMainWindow):
         x = bm3d.iloc[:, 0].values
         y = bm3d.iloc[:, 1].values
         z = bm3d.iloc[:, 2].values
+        periodos = bm3d.iloc[:, 7]
 
         ax.scatter(
             x, 

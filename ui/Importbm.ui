@@ -416,7 +416,7 @@ QPushButton:disabled {
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QRadioButton" name="radioButton">
+    <widget class="QRadioButton" name="header">
      <property name="text">
       <string>Si</string>
      </property>
@@ -578,7 +578,7 @@ QPushButton:disabled {
     </widget>
    </item>
    <item row="2" column="2">
-    <widget class="QRadioButton" name="radioButton_2">
+    <widget class="QRadioButton" name="headernt">
      <property name="text">
       <string>No</string>
      </property>

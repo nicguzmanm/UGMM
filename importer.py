@@ -38,21 +38,33 @@ class Importbm(QtWidgets.QDialog):
             self.bmname.setText(f'{self.ruta}')
             
     def cargar_bm(self):
-        header = pd.read_csv(self.ruta, nrows=0,sep=f"{self.delimitadores[self.sepbox.currentIndex()]}")
-        header = list(header.columns)
-        header.append("[Columna no disponible]")
+        try:
+            if self.header.isChecked():
+                bm = pd.read_csv(self.ruta, nrows=0,sep=f"{self.delimitadores[self.sepbox.currentIndex()]}")
+                header = list(bm)
+                header.append("[Columna no disponible]")
+            else:
+                bm = pd.read_csv(self.ruta, nrows=0,sep=f"{self.delimitadores[self.sepbox.currentIndex()]}")
+                header = [str(i) for i in range(1, len(bm.columns)+1)]
+                header.append("[Columna no disponible]")
+                print(header)
 
-        self.catx.clear()
-        self.caty.clear()
-        self.catz.clear()
-        self.catley.clear()
-        self.catdens.clear()
+            self.catx.clear()
+            self.caty.clear()
+            self.catz.clear()
+            self.catley.clear()
+            self.catdens.clear()
 
-        self.catx.addItems(header)
-        self.caty.addItems(header)
-        self.catz.addItems(header)
-        self.catley.addItems(header)
-        self.catdens.addItems(header)
+            self.catx.addItems(header)
+            self.caty.addItems(header)
+            self.catz.addItems(header)
+            self.catley.addItems(header)
+            self.catdens.addItems(header)
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                    self, '¡Advertencia!', 'Se necesita importar importar el modelo de bloques para continuar.'
+            )
+            print(e)
 
     def setup_connections(self):
         self.catx.currentIndexChanged.connect(self.on_combo_changed)
